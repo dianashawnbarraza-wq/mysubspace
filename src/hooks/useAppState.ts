@@ -105,11 +105,11 @@ export function useAppState() {
   )
 
   const spank = useCallback(
-    (name: string) => {
+    (name: string, visibility: 'public' | 'private' = 'public') => {
       if (name === ME.handle) {
         setMyProfileSpanks((n) => n + 1)
       }
-      toast(`👋 You spanked ${name}`)
+      toast(`👋 You spanked ${name} · ${visibility}`)
     },
     [toast],
   )

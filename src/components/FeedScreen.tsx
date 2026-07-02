@@ -1,92 +1,109 @@
 import type { AppState } from '../hooks/useAppState'
 import { ME } from '../constants/user'
+import { PRIMARY_GROUP } from '../constants/group'
 import type { MemberInfo } from '../types'
 import { ReactionRow } from './ReactionRow'
+import { FeedExploreCta, FeedItem, FeedMeta } from './FeedItem'
 
 const ONLINE: MemberInfo[] = [
   { name: 'nocturne', initial: 'N', dyn: 'Switch', loc: 'DTLA', grad: '135deg,#9EFF00,#00FFC2' },
   { name: 'pupatlas', initial: 'P', dyn: 'Pup', loc: 'Highland Park', grad: '135deg,#7CE33A,#00FFC2' },
 ]
 
+function Av({ initial, grad }: { initial: string; grad: string }) {
+  return (
+    <div className="fi-av" style={{ background: `linear-gradient(${grad})` }}>
+      {initial}
+    </div>
+  )
+}
+
 export function FeedScreen({ app }: { app: AppState }) {
   return (
     <section className={`screen${app.screen === 'feed' ? ' active' : ''}`} id="feed">
       <div className="hero">
         <p className="eyebrow" style={{ marginBottom: 10 }}>
-          Your scene, tonight
+          {PRIMARY_GROUP}
         </p>
         <h1>
-          What&apos;s happening in <em>your groups</em>
+          Activity in <em>{PRIMARY_GROUP}</em>
         </h1>
-        <p>Everything from the people and groups you&apos;re connected to. Spank back, RSVP, or go say hi.</p>
+        <p>Spanks, events, and updates from your group. Choose public or private when you spank back.</p>
       </div>
 
       <div className="feed-grid">
-        <div className="card" style={{ overflow: 'hidden' }}>
-          <div className="feed-item">
-            <div className="fi-av" style={{ background: 'linear-gradient(135deg,#9EFF00,#00FFC2)' }}>N</div>
-            <div className="fi-body">
-              <div className="top"><b>nocturne</b> <span className="grn">spanked</span> you 👋</div>
-              <div className="fi-time">7 min ago</div>
-              <div className="fi-action">
-                <button className="btn btn-primary fi-mini" onClick={() => app.spank('nocturne')}>Spank back</button>
-              </div>
-              <ReactionRow postId="post1" app={app} />
-            </div>
-          </div>
+        <div className="card feed-list">
+          <FeedItem
+            avatar={<Av initial="N" grad="135deg,#9EFF00,#00FFC2" />}
+            meta={<FeedMeta visibility="public" time="7 min ago" />}
+            action={
+              <>
+                <div className="fi-action-row">
+                  <button className="btn btn-primary fi-mini" onClick={() => app.spank('nocturne', 'public')}>
+                    Spank back · public
+                  </button>
+                  <button className="btn btn-ghost fi-mini" onClick={() => app.spank('nocturne', 'private')}>
+                    Spank back · private
+                  </button>
+                </div>
+                <ReactionRow postId="post1" app={app} />
+              </>
+            }
+          >
+            <b>nocturne</b> <span className="grn">spanked</span> you 👋
+          </FeedItem>
 
-          <div className="feed-item">
-            <div className="fi-av" style={{ background: 'linear-gradient(135deg,#00FFC2,#9EFF00)' }}>C</div>
-            <div className="fi-body">
-              <div className="top"><b>Cruise LA</b> posted an event: <b>Friday Cruise Night</b> at Bar Franca</div>
-              <div className="fi-time">32 min ago · Fri, Jul 11 · 9:00 PM</div>
-              <div className="fi-action">
+          <FeedItem
+            avatar={<Av initial="C" grad="135deg,#00FFC2,#9EFF00" />}
+            meta={<FeedMeta visibility="public" time="32 min ago · Fri, Jul 11 · 9:00 PM" />}
+            action={
+              <>
                 <button className="btn btn-aqua fi-mini" onClick={app.rsvpToast}>RSVP</button>
-              </div>
-              <ReactionRow postId="post2" app={app} />
-            </div>
-          </div>
+                <ReactionRow postId="post2" app={app} extra={['🥂']} />
+              </>
+            }
+          >
+            <b>{PRIMARY_GROUP}</b> posted an event: <b>Friday Cruise Night</b> at Bar Franca
+          </FeedItem>
 
-          <div className="feed-item">
-            <div className="fi-av" style={{ background: 'linear-gradient(135deg,#7CE33A,#00FFC2)' }}>P</div>
-            <div className="fi-body">
-              <div className="top"><b>pupatlas</b> joined <span className="grn">Pup Park LA</span> and added you as a friend</div>
-              <div className="fi-time">1 hr ago</div>
-              <div className="fi-action">
-                <button className="btn btn-ghost fi-mini" onClick={() => app.toast('Friend added: pupatlas')}>Accept</button>
-              </div>
-              <ReactionRow postId="post3" app={app} />
-            </div>
-          </div>
+          <FeedItem
+            avatar={<Av initial="N" grad="135deg,#9EFF00,#00FFC2" />}
+            meta={<FeedMeta visibility="public" time="1 hr ago · 14 replies" />}
+            action={<ReactionRow postId="post3" app={app} extra={['🐾']} />}
+          >
+            <b>nocturne</b>: who&apos;s coming Friday? first cruise night of the summer 🖤
+          </FeedItem>
 
-          <div className="feed-item">
-            <div className="fi-av" style={{ background: `linear-gradient(${ME.grad})` }}>{ME.initial}</div>
-            <div className="fi-body">
-              <div className="top"><b>{ME.handle}</b> listed <span className="grn">Steel collar, mirror finish</span> in Market · pickup in Silver Lake</div>
-              <div className="fi-time">2 hr ago · $150</div>
-              <div className="fi-action">
+          <FeedItem
+            avatar={<Av initial={ME.initial} grad={ME.grad} />}
+            meta={<FeedMeta visibility="public" time="2 hr ago · $150" />}
+            action={
+              <>
                 <button className="btn btn-ghost fi-mini" onClick={() => app.go('market')}>View item</button>
-              </div>
-              <ReactionRow postId="post4" app={app} />
-            </div>
-          </div>
+                <ReactionRow postId="post4" app={app} extra={['⛓️']} />
+              </>
+            }
+          >
+            <b>{ME.handle}</b> listed <span className="grn">Steel collar, mirror finish</span> in Market · Silver Lake
+          </FeedItem>
 
-          <div className="feed-item">
-            <div className="fi-av" style={{ background: 'linear-gradient(135deg,#9EFF00,#7CE33A)' }}>R</div>
-            <div className="fi-body">
-              <div className="top"><b>Rope &amp; Ritual</b> wants to play: <span className="grn">Truth or Dare</span> lobby is open</div>
-              <div className="fi-time">3 hr ago · 4 waiting</div>
-              <div className="fi-action">
-                <button className="btn btn-aqua fi-mini" onClick={() => app.toast('Joining lobby...')}>Join game</button>
-              </div>
-              <ReactionRow postId="post5" app={app} />
-            </div>
-          </div>
+          <FeedItem
+            avatar={<Av initial="V" grad="135deg,#7CE33A,#00FFC2" />}
+            meta={<FeedMeta visibility="private" time="3 hr ago" />}
+            action={<ReactionRow postId="post5" app={app} extra={['🎲', '😏']} />}
+          >
+            <b>velvetbound</b> <span className="grn">spanked</span> <b>brattybean</b> 👋
+          </FeedItem>
+
+          <FeedExploreCta
+            onGroups={() => app.go('groups')}
+            onNearby={() => app.toast('Showing profiles near you in LA…')}
+          />
         </div>
 
         <div className="feed-side">
           <div className="card side-card">
-            <h3><span className="online" /> Online now</h3>
+            <h3><span className="online" /> Online in {PRIMARY_GROUP}</h3>
             {ONLINE.map((m) => (
               <div key={m.name} className="who" style={{ cursor: 'pointer' }} onClick={() => app.openMember(m)}>
                 <div className="who-av" style={{ background: `linear-gradient(${m.grad})` }}>{m.initial}</div>
