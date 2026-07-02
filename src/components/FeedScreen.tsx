@@ -88,6 +88,11 @@ export function FeedScreen({ app }: { app: AppState }) {
             <b>nocturne</b>: who&apos;s coming Friday? first cruise night of the summer 🖤
           </FeedItem>
 
+          <FeedExploreCta
+            onGroups={() => app.go('groups')}
+            onNearby={() => app.toast('Showing profiles near you in LA…')}
+          />
+
           <FeedItem
             avatar={<Av initial={ME.initial} grad={ME.grad} />}
             meta={<FeedMeta visibility="public" time="2 hr ago · $150" />}
@@ -103,15 +108,51 @@ export function FeedScreen({ app }: { app: AppState }) {
 
           <FeedItem
             avatar={<Av initial="V" grad="135deg,#7CE33A,#00FFC2" />}
-            meta={<FeedMeta visibility="private" time="3 hr ago" />}
+            meta={<FeedMeta visibility="public" time="3 hr ago" />}
           >
             <b>velvetbound</b> <span className="grn">spanked</span> <b>brattybean</b> 👋
           </FeedItem>
 
-          <FeedExploreCta
-            onGroups={() => app.go('groups')}
-            onNearby={() => app.toast('Showing profiles near you in LA…')}
-          />
+          {!app.feedExpanded ? (
+            <button type="button" className="feed-show-more" onClick={() => app.setFeedExpanded(true)}>
+              Show more
+            </button>
+          ) : (
+            <>
+              <FeedItem
+                avatar={<Av initial="R" grad="135deg,#9EFF00,#7CE33A" />}
+                meta={<FeedMeta visibility="public" time="4 hr ago · 4 waiting" />}
+                action={
+                  <>
+                    <button type="button" className="btn btn-aqua fi-mini" onClick={() => app.toast('Joining lobby...')}>Join game</button>
+                    <ReactionRow postId="post5" app={app} extra={['🎲', '😏']} />
+                  </>
+                }
+              >
+                <b>Rope &amp; Ritual</b> wants to play: <span className="grn">Truth or Dare</span> lobby is open
+              </FeedItem>
+
+              <FeedItem
+                avatar={<Av initial="P" grad="135deg,#7CE33A,#00FFC2" />}
+                meta={<FeedMeta visibility="public" time="5 hr ago" />}
+                action={
+                  <button type="button" className="btn btn-ghost fi-mini" onClick={() => app.toast('Friend added: pupatlas')}>
+                    Accept
+                  </button>
+                }
+              >
+                <b>pupatlas</b> joined <span className="grn">Pup Park LA</span> and added you as a friend
+              </FeedItem>
+
+              <FeedItem
+                avatar={<Av initial="M" grad="135deg,#00FFC2,#7CE33A" />}
+                meta={<FeedMeta visibility="public" time="6 hr ago" />}
+                action={<ReactionRow postId="post6" app={app} extra={['🔥']} />}
+              >
+                <b>mercuryknot</b> shared photos from last week&apos;s tie session
+              </FeedItem>
+            </>
+          )}
         </div>
 
         <div className="feed-side">

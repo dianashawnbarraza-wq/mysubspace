@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
-import { PRIMARY_GROUP } from '../constants/group'
+import { FEED_LABEL } from '../constants/group'
 
 export function FeedMeta({
-  group = PRIMARY_GROUP,
+  group = FEED_LABEL,
   visibility,
   label,
   time,
@@ -13,7 +13,7 @@ export function FeedMeta({
   time: string
 }) {
   const showGroup = group !== null
-  const groupName = group ?? PRIMARY_GROUP
+  const groupName = group ?? FEED_LABEL
 
   return (
     <div className="fi-meta">

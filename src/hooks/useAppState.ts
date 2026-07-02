@@ -80,6 +80,8 @@ export function useAppState() {
 
   const [flirtRequest, setFlirtRequest] = useState<'pending' | 'accepted' | 'denied'>('pending')
 
+  const [feedExpanded, setFeedExpanded] = useState(false)
+
   const [reactorOpen, setReactorOpen] = useState(false)
   const [reactorMode, setReactorMode] = useState<ReactorMode>('feed')
   const [reactorCtx, setReactorCtx] = useState('')
@@ -395,6 +397,8 @@ export function useAppState() {
     flirtRequest,
     acceptFlirtRequest,
     denyFlirtRequest,
+    feedExpanded,
+    setFeedExpanded,
     reactorOpen,
     reactorMode,
     reactorCtx,
