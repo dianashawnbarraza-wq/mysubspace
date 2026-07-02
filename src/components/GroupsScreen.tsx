@@ -1,6 +1,7 @@
 import type { AppState } from '../hooks/useAppState'
 import { ME } from '../constants/user'
 import type { MemberInfo } from '../types'
+import { GroupCompose, GroupFeedPost } from './GroupFeedPost'
 
 const GROUPS = [
   { name: 'Cruise LA', desc: 'Night outs, bar takeovers, and cruise meetups across LA. Consent first, always.', members: 412, online: 38, banner: '120deg,#1a3810,#0d2320', avatars: ['K', 'N', 'P', 'M'], colors: ['#9EFF00', '#00FFC2', '#7CE33A', '#5FD000'], tag: 'member' as const },
@@ -79,19 +80,13 @@ export function GroupsScreen({ app }: { app: AppState }) {
           </div>
 
           <div className={`gd-pane${app.groupTab === 'g-feed' ? ' on' : ''}`} id="g-feed">
-            <div className="card" style={{ overflow: 'hidden' }}>
-              <div className="feed-item">
-                <div className="fi-av" style={{ background: `linear-gradient(${ME.grad})` }}>{ME.initial}</div>
-                <div className="fi-body"><div className="top"><b>{ME.handle}</b> pinned: house rules and consent norms. Read before your first meet.</div><div className="fi-time">pinned</div></div>
-              </div>
-              <div className="feed-item">
-                <div className="fi-av" style={{ background: 'linear-gradient(135deg,#9EFF00,#00FFC2)' }}>N</div>
-                <div className="fi-body"><div className="top"><b>nocturne</b>: who&apos;s coming Friday? first cruise night of the summer 🖤</div><div className="fi-time">1 hr ago · 14 replies</div></div>
-              </div>
-              <div className="feed-item">
-                <div className="fi-av" style={{ background: `linear-gradient(${ME.grad})` }}>{ME.initial}</div>
-                <div className="fi-body"><div className="top"><b>{ME.handle}</b> shared a gear pic from last week&apos;s meet</div><div className="fi-time">4 hr ago · 22 likes</div></div>
-              </div>
+            <GroupCompose app={app} />
+            <div className="card gp-feed">
+              {app.groupPosts
+                .filter((post) => !app.hiddenGroupPostIds.includes(post.id))
+                .map((post) => (
+                  <GroupFeedPost key={post.id} post={post} app={app} />
+                ))}
             </div>
           </div>
 

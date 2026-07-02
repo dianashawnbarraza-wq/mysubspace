@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ME } from '../constants/user'
 import { locationFromZip } from '../constants/location'
+import { INITIAL_GROUP_POSTS } from '../constants/groupPosts'
 import { fetchGifs, type GifItem } from '../lib/giphy'
 import type {
   ConsentKind,
   ConsentStatus,
   FeedSpankEntry,
+  GroupPost,
   GroupTab,
   MemberInfo,
   PanelTab,
@@ -45,6 +47,12 @@ export function useAppState() {
   const [myProfileSpanks, setMyProfileSpanks] = useState(2431)
   const [showGroupDetail, setShowGroupDetail] = useState(false)
   const [groupTab, setGroupTab] = useState<GroupTab>('g-feed')
+  const [groupPosts, setGroupPosts] = useState<GroupPost[]>(INITIAL_GROUP_POSTS)
+  const [groupComposeText, setGroupComposeText] = useState('')
+  const [groupComposePhoto, setGroupComposePhoto] = useState(false)
+  const [hiddenGroupPostIds, setHiddenGroupPostIds] = useState<string[]>([])
+  const [openGroupMenuId, setOpenGroupMenuId] = useState<string | null>(null)
+  const [revealedGroupImages, setRevealedGroupImages] = useState<string[]>([])
   const [marketChip, setMarketChip] = useState('All')
 
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -410,6 +418,56 @@ export function useAppState() {
     [loadGifs],
   )
 
+  const groupPostAction = useCallback(
+    (postId: string, action: 'bookmark' | 'hide' | 'report') => {
+      setOpenGroupMenuId(null)
+      if (action === 'hide') {
+        setHiddenGroupPostIds((ids) => [...ids, postId])
+        toast('Post hidden from group feed')
+      } else if (action === 'bookmark') {
+        toast('Saved to bookmarks')
+      } else {
+        toast('Report sent to group admins')
+      }
+    },
+    [toast],
+  )
+
+  const revealGroupImage = useCallback((postId: string) => {
+    setRevealedGroupImages((ids) => (ids.includes(postId) ? ids : [...ids, postId]))
+  }, [])
+
+  const postToGroup = useCallback(() => {
+    const text = groupComposeText.trim()
+    if (!text) return
+    setGroupPosts((posts) => {
+      const pinned = posts.filter((p) => p.pinned)
+      const rest = posts.filter((p) => !p.pinned)
+      const newPost: GroupPost = {
+        id: crypto.randomUUID(),
+        author: ME.handle,
+        initial: ME.initial,
+        grad: ME.grad,
+        time: 'just now',
+        text,
+        image: groupComposePhoto
+          ? {
+              kind: 'photo' as const,
+              label: 'Gear photo',
+              alt: 'Uploaded gear photo',
+              hue: '9EFF00',
+            }
+          : undefined,
+        replies: [],
+        replyCount: 0,
+      }
+      return [...pinned, newPost, ...rest]
+    })
+    setGroupComposeText('')
+    setGroupComposePhoto(false)
+    toast(groupComposePhoto ? 'Posted with photo' : 'Posted to group')
+  }, [groupComposePhoto, groupComposeText, toast])
+
   const feedPostAction = useCallback(
     (postId: string, action: 'bookmark' | 'hide' | 'report') => {
       setOpenFeedMenuId(null)
@@ -440,6 +498,7 @@ export function useAppState() {
       setShowGroupSettings(false)
       setMpMenuOpen(false)
       setOpenFeedMenuId(null)
+      setOpenGroupMenuId(null)
       closeReactor()
     }
     document.addEventListener('keydown', onKey)
@@ -457,6 +516,12 @@ export function useAppState() {
     if (openFeedMenuId) document.addEventListener('click', onClick)
     return () => document.removeEventListener('click', onClick)
   }, [openFeedMenuId])
+
+  useEffect(() => {
+    const onClick = () => setOpenGroupMenuId(null)
+    if (openGroupMenuId) document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  }, [openGroupMenuId])
 
   useEffect(() => {
     if (!reactorOpen) return
@@ -486,6 +551,18 @@ export function useAppState() {
     closeGroup,
     groupTab,
     setGroupTab,
+    groupPosts,
+    hiddenGroupPostIds,
+    groupComposeText,
+    setGroupComposeText,
+    groupComposePhoto,
+    setGroupComposePhoto,
+    postToGroup,
+    openGroupMenuId,
+    setOpenGroupMenuId,
+    groupPostAction,
+    revealGroupImage,
+    revealedGroupImages,
     marketChip,
     setMarketChip,
     showOnboarding,

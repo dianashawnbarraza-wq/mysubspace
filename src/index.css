@@ -283,6 +283,27 @@
     border-bottom:2px solid transparent;transition:.15s}
   .gd-tab.on{color:var(--acid);border-bottom-color:var(--acid)}
   .gd-pane{display:none}.gd-pane.on{display:block}
+  .gp-compose{background:var(--panel);border:1px solid var(--line-soft);border-radius:16px;padding:14px;margin-bottom:14px}
+  .gp-compose-row{display:flex;gap:12px;align-items:flex-start}
+  .gp-compose-input{flex:1;background:var(--raised);border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;
+    color:var(--text);font-family:var(--f-body);font-size:15px;line-height:1.45;resize:vertical;min-height:56px}
+  .gp-compose-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-left:54px}
+  .gp-compose-photo{font-size:13px;padding:7px 12px}
+  .gp-compose-photo.on{border-color:rgba(158,255,0,.45);color:var(--acid)}
+  .gp-feed{overflow:hidden}
+  .group-post.pinned{background:rgba(158,255,0,.04)}
+  .gp-media{margin-top:10px;border-radius:12px;overflow:hidden;border:1px solid var(--line-soft);position:relative}
+  .gp-media img{display:block;width:100%;max-height:280px;object-fit:cover}
+  .gp-media-trigger{cursor:pointer}
+  .gp-blur{filter:blur(22px) saturate(.6);transform:scale(1.08)}
+  .gp-trigger-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:6px;background:rgba(5,8,6,.55);text-align:center;padding:16px}
+  .gp-trigger-label{font-family:var(--f-display);font-size:16px;font-weight:700;color:var(--text)}
+  .gp-trigger-sub{font-family:var(--f-mono);font-size:12px;color:var(--aqua)}
+  .gp-replies{margin-top:10px;padding:10px 12px;background:var(--raised);border-radius:10px;border:1px solid var(--line-soft)}
+  .gp-reply{font-size:13.5px;color:var(--body);line-height:1.45;padding:4px 0}
+  .gp-reply b{font-family:var(--f-display);color:var(--text);font-weight:600}
+  .gp-view-replies{margin-top:6px;font-family:var(--f-display);font-size:13px;font-weight:600;color:var(--aqua)}
   .event{display:flex;gap:15px;padding:15px;border:1px solid var(--line-soft);border-radius:13px;margin-bottom:12px;align-items:center}
   .ev-date{width:56px;flex-shrink:0;text-align:center;background:var(--raised);border-radius:11px;padding:9px 0;border:1px solid var(--line-soft)}
   .ev-date .m{font-family:var(--f-mono);font-size:12px;color:var(--acid);text-transform:uppercase;letter-spacing:.1em}

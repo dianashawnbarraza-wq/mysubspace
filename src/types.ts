@@ -46,3 +46,28 @@ export type ReactorPosition = { left: number; top: number }
 export type GroupTab = 'g-feed' | 'g-cal' | 'g-mem'
 export type PanelTab = 'np-req' | 'np-act'
 export type ReactorTab = 'icons' | 'gifs'
+
+export type GroupPostReply = {
+  author: string
+  text: string
+}
+
+export type GroupPostImage = {
+  kind: 'photo' | 'trigger'
+  label: string
+  alt: string
+  hue?: string
+}
+
+export type GroupPost = {
+  id: string
+  author: string
+  initial: string
+  grad: string
+  time: string
+  text: string
+  pinned?: boolean
+  image?: GroupPostImage
+  replies: GroupPostReply[]
+  replyCount: number
+}
