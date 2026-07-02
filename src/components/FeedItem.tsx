@@ -4,17 +4,24 @@ import { PRIMARY_GROUP } from '../constants/group'
 export function FeedMeta({
   group = PRIMARY_GROUP,
   visibility,
+  label,
   time,
 }: {
   group?: string
-  visibility: 'public' | 'private'
+  visibility?: 'public' | 'private'
+  label?: string
   time: string
 }) {
+  const tag = label ?? visibility
   return (
     <div className="fi-meta">
       <span className="fi-group">{group}</span>
-      <span className="fi-meta-dot">·</span>
-      <span className={`fi-vis${visibility === 'private' ? ' private' : ''}`}>{visibility}</span>
+      {tag && (
+        <>
+          <span className="fi-meta-dot">·</span>
+          <span className={`fi-vis${label ? ' label' : ''}${visibility === 'private' ? ' private' : ''}`}>{tag}</span>
+        </>
+      )}
       <span className="fi-meta-dot">·</span>
       <span className="fi-time-inline">{time}</span>
     </div>

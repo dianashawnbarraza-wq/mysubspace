@@ -22,43 +22,57 @@ export function FeedScreen({ app }: { app: AppState }) {
   return (
     <section className={`screen${app.screen === 'feed' ? ' active' : ''}`} id="feed">
       <div className="hero">
-        <p className="eyebrow" style={{ marginBottom: 10 }}>
-          {PRIMARY_GROUP}
+        <p className="eyebrow hero-welcome">
+          Welcome, <em>{ME.handle}</em>
         </p>
         <h1>
-          Activity in <em>{PRIMARY_GROUP}</em>
+          What&apos;s happening <em>tonight</em>
         </h1>
-        <p>Spanks, events, and updates from your group. Choose public or private when you spank back.</p>
       </div>
 
       <div className="feed-grid">
         <div className="card feed-list">
-          <FeedItem
-            avatar={<Av initial="N" grad="135deg,#9EFF00,#00FFC2" />}
-            meta={<FeedMeta visibility="public" time="7 min ago" />}
-            action={
-              <>
-                <div className="fi-action-row">
-                  <button className="btn btn-primary fi-mini" onClick={() => app.spank('nocturne', 'public')}>
-                    Spank back · public
-                  </button>
-                  <button className="btn btn-ghost fi-mini" onClick={() => app.spank('nocturne', 'private')}>
-                    Spank back · private
-                  </button>
-                </div>
-                <ReactionRow postId="post1" app={app} />
-              </>
-            }
-          >
-            <b>nocturne</b> <span className="grn">spanked</span> you 👋
-          </FeedItem>
+          {app.flirtRequest !== 'denied' && (
+            <FeedItem
+              avatar={<Av initial="N" grad="135deg,#9EFF00,#00FFC2" />}
+              meta={
+                app.flirtRequest === 'pending' ? (
+                  <FeedMeta label="flirt request" time="7 min ago" />
+                ) : (
+                  <FeedMeta visibility="private" time="just now" />
+                )
+              }
+              action={
+                app.flirtRequest === 'pending' ? (
+                  <div className="fi-action-row">
+                    <button type="button" className="btn btn-primary fi-mini" onClick={app.acceptFlirtRequest}>
+                      Accept request
+                    </button>
+                    <button type="button" className="btn btn-ghost fi-mini" onClick={app.denyFlirtRequest}>
+                      Deny request
+                    </button>
+                  </div>
+                ) : undefined
+              }
+            >
+              {app.flirtRequest === 'pending' ? (
+                <>
+                  <b>Nocturne</b> would like to spank you 👋
+                </>
+              ) : (
+                <>
+                  <b>Nocturne</b> <span className="grn">spanked</span> you 👋
+                </>
+              )}
+            </FeedItem>
+          )}
 
           <FeedItem
             avatar={<Av initial="C" grad="135deg,#00FFC2,#9EFF00" />}
             meta={<FeedMeta visibility="public" time="32 min ago · Fri, Jul 11 · 9:00 PM" />}
             action={
               <>
-                <button className="btn btn-aqua fi-mini" onClick={app.rsvpToast}>RSVP</button>
+                <button type="button" className="btn btn-aqua fi-mini" onClick={app.rsvpToast}>RSVP</button>
                 <ReactionRow postId="post2" app={app} extra={['🥂']} />
               </>
             }
@@ -79,7 +93,7 @@ export function FeedScreen({ app }: { app: AppState }) {
             meta={<FeedMeta visibility="public" time="2 hr ago · $150" />}
             action={
               <>
-                <button className="btn btn-ghost fi-mini" onClick={() => app.go('market')}>View item</button>
+                <button type="button" className="btn btn-ghost fi-mini" onClick={() => app.go('market')}>View item</button>
                 <ReactionRow postId="post4" app={app} extra={['⛓️']} />
               </>
             }
@@ -90,7 +104,6 @@ export function FeedScreen({ app }: { app: AppState }) {
           <FeedItem
             avatar={<Av initial="V" grad="135deg,#7CE33A,#00FFC2" />}
             meta={<FeedMeta visibility="private" time="3 hr ago" />}
-            action={<ReactionRow postId="post5" app={app} extra={['🎲', '😏']} />}
           >
             <b>velvetbound</b> <span className="grn">spanked</span> <b>brattybean</b> 👋
           </FeedItem>
@@ -112,6 +125,7 @@ export function FeedScreen({ app }: { app: AppState }) {
                   <div className="who-sub">{m.dyn} · {m.loc}</div>
                 </div>
                 <button
+                  type="button"
                   className="btn btn-ghost who-btn"
                   onClick={(e) => { e.stopPropagation(); app.openMember(m) }}
                 >
@@ -126,12 +140,12 @@ export function FeedScreen({ app }: { app: AppState }) {
             <div className="who">
               <div className="who-av" style={{ background: 'linear-gradient(135deg,#9EFF00,#5FD000)' }}>L</div>
               <div><div className="who-name">Latex League</div><div className="who-sub">218 members</div></div>
-              <button className="btn btn-aqua who-btn" onClick={() => app.go('groups')}>Peek</button>
+              <button type="button" className="btn btn-aqua who-btn" onClick={() => app.go('groups')}>Peek</button>
             </div>
             <div className="who">
               <div className="who-av" style={{ background: 'linear-gradient(135deg,#00FFC2,#7CE33A)' }}>K</div>
               <div><div className="who-name">Knots &amp; Coffee</div><div className="who-sub">94 members</div></div>
-              <button className="btn btn-aqua who-btn" onClick={() => app.go('groups')}>Peek</button>
+              <button type="button" className="btn btn-aqua who-btn" onClick={() => app.go('groups')}>Peek</button>
             </div>
           </div>
         </div>

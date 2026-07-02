@@ -9,7 +9,6 @@ import type {
   PanelTab,
   ReactionMap,
   ReactorMode,
-  ReactorPosition,
   ReactorTab,
   Screen,
   WallEntry,
@@ -79,10 +78,11 @@ export function useAppState() {
 
   const [reactions, setReactions] = useState<ReactionMap>({})
 
+  const [flirtRequest, setFlirtRequest] = useState<'pending' | 'accepted' | 'denied'>('pending')
+
   const [reactorOpen, setReactorOpen] = useState(false)
   const [reactorMode, setReactorMode] = useState<ReactorMode>('feed')
   const [reactorCtx, setReactorCtx] = useState('')
-  const [reactorPos, setReactorPos] = useState<ReactorPosition>({ left: 0, top: 0 })
   const [reactorTab, setReactorTab] = useState<ReactorTab>('icons')
   const [gifs, setGifs] = useState<GifItem[]>([])
   const [gifsLoading, setGifsLoading] = useState(false)
@@ -116,6 +116,16 @@ export function useAppState() {
 
   const rsvpToast = useCallback(() => toast("✓ You're going. Added to your calendar."), [toast])
   const inviteTo = useCallback((group: string) => toast(`🔑 Invite link copied for ${group}`), [toast])
+
+  const acceptFlirtRequest = useCallback(() => {
+    setFlirtRequest('accepted')
+    toast('Nocturne spanked you · private')
+  }, [toast])
+
+  const denyFlirtRequest = useCallback(() => {
+    setFlirtRequest('denied')
+    toast('Request declined')
+  }, [toast])
 
   const openGroup = useCallback(() => {
     setShowGroupDetail(true)
@@ -235,17 +245,8 @@ export function useAppState() {
   const openReactor = useCallback(
     (e: React.MouseEvent, mode: ReactorMode, ctx = '') => {
       e.stopPropagation()
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-      const popW = 280
-      const popH = 320
-      let left = rect.left
-      let top = rect.bottom + 8
-      if (left + popW > window.innerWidth - 12) left = window.innerWidth - popW - 12
-      if (left < 12) left = 12
-      if (top + popH > window.innerHeight - 12) top = Math.max(12, rect.top - popH - 8)
       setReactorMode(mode)
       setReactorCtx(ctx)
-      setReactorPos({ left, top })
       setReactorTab('icons')
       setReactorOpen(true)
     },
@@ -325,13 +326,10 @@ export function useAppState() {
   }, [mpMenuOpen])
 
   useEffect(() => {
+    if (!reactorOpen) return
     const onClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      if (
-        reactorOpen &&
-        !target.closest('#reactor') &&
-        !target.closest('.reactor-trigger')
-      ) {
+      if (!target.closest('.reactor-modal') && !target.closest('.reactor-trigger')) {
         closeReactor()
       }
     }
@@ -394,10 +392,12 @@ export function useAppState() {
     postComment,
     reactions,
     toggleReaction,
+    flirtRequest,
+    acceptFlirtRequest,
+    denyFlirtRequest,
     reactorOpen,
     reactorMode,
     reactorCtx,
-    reactorPos,
     reactorTab,
     switchReactorTab,
     openReactor,
