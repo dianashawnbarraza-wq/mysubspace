@@ -1,14 +1,94 @@
 import type { MemberInfo } from '../types'
 
-export const INTEREST_FILTERS = ['All', 'leather', 'bondage', 'impact', 'rope', 'pup play', 'switching'] as const
-export const LOOKING_FILTERS = ['All', 'play partners', 'friends', 'relationship', 'mentorship'] as const
-export const PREFERENCE_FILTERS = ['All', 'queer', 'gay', 'bi', 'pan', 'open'] as const
+export const LOCATION_FILTERS = [
+  'DTLA',
+  'Silver Lake',
+  'Echo Park',
+  'Highland Park',
+  'Los Feliz',
+  'West Hollywood',
+  'North Hollywood',
+  'Venice',
+  'Culver City',
+  'Koreatown',
+  'Long Beach',
+  'Pasadena',
+] as const
 
-export type InterestFilter = (typeof INTEREST_FILTERS)[number]
-export type LookingFilter = (typeof LOOKING_FILTERS)[number]
-export type PreferenceFilter = (typeof PREFERENCE_FILTERS)[number]
+export const INTEREST_FILTERS = [
+  'leather',
+  'bondage',
+  'impact',
+  'rope',
+  'pup play',
+  'switching',
+  'latex',
+  'sensory',
+  'roleplay',
+  'exhibitionism',
+  'caregiving',
+  'pet play',
+  'wax',
+  'fire play',
+  'edging',
+  'muscle worship',
+  'foot worship',
+  'knife play',
+  'voyeurism',
+  'protocol',
+] as const
 
-export const LOCAL_PEOPLE: MemberInfo[] = [
+export const LOOKING_FILTERS = [
+  'play partners',
+  'friends',
+  'relationship',
+  'mentorship',
+  'casual fun',
+  'events',
+  'collabs',
+  'long distance',
+] as const
+
+export const PREFERENCE_FILTERS = [
+  'queer',
+  'gay',
+  'lesbian',
+  'bi',
+  'pan',
+  'straight',
+  'demisexual',
+  'sapiosexual',
+  'open',
+  'questioning',
+  'fluid',
+  'asexual spectrum',
+] as const
+
+const GRADS = [
+  '135deg,#9EFF00,#00FFC2',
+  '135deg,#7CE33A,#00FFC2',
+  '135deg,#00FFC2,#7CE33A',
+  '135deg,#00FFC2,#5FD000',
+  '135deg,#5FD000,#9EFF00',
+  '135deg,#9EFF00,#5FD000',
+  '135deg,#7CE33A,#5FD000',
+  '135deg,#00FFC2,#9EFF00',
+]
+
+const DYNS = ['Switch', 'Dom', 'Sub', 'Pup', 'Rigger', 'Brat', 'Handler', 'Leather', 'Primal', 'Vanilla curious']
+
+const HANDLE_PREFIX = [
+  'night', 'rope', 'pup', 'leather', 'knot', 'velvet', 'iron', 'shadow', 'neon', 'cruise',
+  'amber', 'sable', 'chrome', 'mist', 'ember', 'cipher', 'drift', 'haze', 'volt', 'lace',
+  'byte', 'flux', 'glow', 'hex', 'jade', 'lux', 'moss', 'nox', 'onyx', 'pulse',
+]
+
+const HANDLE_SUFFIX = [
+  'bound', 'wire', 'atlas', 'bean', 'knot', 'fall', 'spark', 'moss', 'drift', 'lace',
+  'line', 'core', 'wave', 'dust', 'fire', 'link', 'node', 'sync', 'tone', 'veil',
+]
+
+const CORE_PROFILES: MemberInfo[] = [
   {
     name: 'nocturne',
     initial: 'N',
@@ -83,22 +163,86 @@ export const LOCAL_PEOPLE: MemberInfo[] = [
   },
 ]
 
-export function filterLocalPeople(
-  people: MemberInfo[],
-  interest: InterestFilter,
-  looking: LookingFilter,
-  preference: PreferenceFilter,
-) {
-  return people.filter((p) => {
-    if (interest !== 'All' && !p.interests?.some((i) => i.toLowerCase().includes(interest.toLowerCase()))) {
-      return false
-    }
-    if (looking !== 'All' && !p.lookingFor?.some((l) => l.toLowerCase() === looking.toLowerCase())) {
-      return false
-    }
-    if (preference !== 'All' && p.sexualPreference?.toLowerCase() !== preference.toLowerCase()) {
-      return false
-    }
+function pick<T>(arr: readonly T[], index: number) {
+  return arr[index % arr.length]
+}
+
+function pickMany<T>(arr: readonly T[], count: number, seed: number) {
+  const out: T[] = []
+  for (let i = 0; i < count; i++) {
+    out.push(pick(arr, seed + i * 3))
+  }
+  return [...new Set(out)]
+}
+
+function generateHandle(index: number, used: Set<string>) {
+  let name = `${pick(HANDLE_PREFIX, index)}${pick(HANDLE_SUFFIX, index + 5)}`
+  if (used.has(name)) name = `${name}${index}`
+  if (used.has(name)) name = `scene${index}`
+  used.add(name)
+  return name
+}
+
+function generateProfiles(count: number): MemberInfo[] {
+  const used = new Set(CORE_PROFILES.map((p) => p.name))
+  const profiles: MemberInfo[] = [...CORE_PROFILES]
+
+  for (let i = 0; profiles.length < count; i++) {
+    const name = generateHandle(i + 20, used)
+    const loc = pick(LOCATION_FILTERS, i + 2)
+    const pref = pick(PREFERENCE_FILTERS, i + 4)
+    profiles.push({
+      name,
+      initial: name.charAt(0).toUpperCase(),
+      dyn: pick(DYNS, i),
+      loc,
+      grad: pick(GRADS, i),
+      sexuality: pref,
+      genderIdentity: pick(['man', 'woman', 'non-binary', 'transmasc', 'transfem', 'genderfluid', 'agender'], i),
+      interests: pickMany(INTEREST_FILTERS, 2 + (i % 3), i),
+      lookingFor: pickMany(LOOKING_FILTERS, 1 + (i % 2), i + 1),
+      sexualPreference: pref,
+    })
+  }
+
+  return profiles
+}
+
+export const LOCAL_PEOPLE = generateProfiles(150)
+
+export type PeopleFilters = {
+  query: string
+  locations: string[]
+  interests: string[]
+  lookingFor: string[]
+  preferences: string[]
+}
+
+function matchesAny(haystack: string[] | undefined, needles: string[]) {
+  if (needles.length === 0) return true
+  const lower = (haystack ?? []).map((v) => v.toLowerCase())
+  return needles.some((n) => lower.some((h) => h.includes(n.toLowerCase()) || n.toLowerCase().includes(h)))
+}
+
+function matchesPreference(person: MemberInfo, preferences: string[]) {
+  if (preferences.length === 0) return true
+  const identity = [person.sexualPreference, person.sexuality].filter(Boolean).map((v) => v!.toLowerCase())
+  return preferences.some((p) => identity.some((id) => id.includes(p.toLowerCase()) || p.toLowerCase().includes(id)))
+}
+
+export function filterLocalPeople(people: MemberInfo[], filters: PeopleFilters) {
+  const q = filters.query.trim().toLowerCase().replace(/^@/, '')
+
+  return people.filter((person) => {
+    if (q && !person.name.toLowerCase().includes(q)) return false
+    if (filters.locations.length > 0 && !filters.locations.includes(person.loc)) return false
+    if (!matchesAny(person.interests, filters.interests)) return false
+    if (!matchesAny(person.lookingFor, filters.lookingFor)) return false
+    if (!matchesPreference(person, filters.preferences)) return false
     return true
   })
+}
+
+export function findPersonByName(name: string) {
+  return LOCAL_PEOPLE.find((p) => p.name.toLowerCase() === name.toLowerCase())
 }

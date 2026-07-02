@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ME } from '../constants/user'
 import { locationFromZip } from '../constants/location'
-import type { InterestFilter, LookingFilter, PreferenceFilter } from '../constants/people'
 import { fetchGifs, type GifItem } from '../lib/giphy'
 import type {
   ConsentKind,
@@ -58,9 +57,13 @@ export function useAppState() {
   const [locationCity, setLocationCity] = useState('Los Angeles')
   const [idVerificationRequired, setIdVerificationRequired] = useState(false)
 
-  const [peopleInterest, setPeopleInterest] = useState<InterestFilter>('All')
-  const [peopleLooking, setPeopleLooking] = useState<LookingFilter>('All')
-  const [peoplePreference, setPeoplePreference] = useState<PreferenceFilter>('All')
+  const [peopleSearch, setPeopleSearch] = useState('')
+  const [peopleRecentSearches, setPeopleRecentSearches] = useState<MemberInfo[]>([])
+  const [peopleLocations, setPeopleLocations] = useState<string[]>([])
+  const [peopleInterests, setPeopleInterests] = useState<string[]>([])
+  const [peopleLooking, setPeopleLooking] = useState<string[]>([])
+  const [peoplePreferences, setPeoplePreferences] = useState<string[]>([])
+  const [customPeopleInterest, setCustomPeopleInterest] = useState('')
 
   const [hiddenPostIds, setHiddenPostIds] = useState<string[]>([])
   const [openFeedMenuId, setOpenFeedMenuId] = useState<string | null>(null)
@@ -219,6 +222,59 @@ export function useAppState() {
     setConsentState({ spank: 'none', message: 'none', photo: 'none' })
     setMpMenuOpen(false)
     setShowMemberProfile(true)
+  }, [])
+
+  const addRecentPeopleSearch = useCallback((info: MemberInfo) => {
+    setPeopleRecentSearches((prev) => {
+      const next = [info, ...prev.filter((p) => p.name !== info.name)]
+      return next.slice(0, 8)
+    })
+  }, [])
+
+  const dismissRecentPeopleSearch = useCallback((name: string) => {
+    setPeopleRecentSearches((prev) => prev.filter((p) => p.name !== name))
+  }, [])
+
+  const openMemberFromPeople = useCallback(
+    (info: MemberInfo) => {
+      addRecentPeopleSearch(info)
+      openMember(info)
+    },
+    [addRecentPeopleSearch, openMember],
+  )
+
+  const togglePeopleLocation = useCallback((loc: string) => {
+    setPeopleLocations((prev) => (prev.includes(loc) ? prev.filter((x) => x !== loc) : [...prev, loc]))
+  }, [])
+
+  const togglePeopleInterest = useCallback((interest: string) => {
+    setPeopleInterests((prev) =>
+      prev.includes(interest) ? prev.filter((x) => x !== interest) : [...prev, interest],
+    )
+  }, [])
+
+  const togglePeopleLooking = useCallback((looking: string) => {
+    setPeopleLooking((prev) => (prev.includes(looking) ? prev.filter((x) => x !== looking) : [...prev, looking]))
+  }, [])
+
+  const togglePeoplePreference = useCallback((pref: string) => {
+    setPeoplePreferences((prev) => (prev.includes(pref) ? prev.filter((x) => x !== pref) : [...prev, pref]))
+  }, [])
+
+  const addCustomPeopleInterest = useCallback(() => {
+    const value = customPeopleInterest.trim().toLowerCase()
+    if (!value) return
+    setPeopleInterests((prev) => (prev.includes(value) ? prev : [...prev, value]))
+    setCustomPeopleInterest('')
+    toast(`Filtering by “${value}”`)
+  }, [customPeopleInterest, toast])
+
+  const clearPeopleFilters = useCallback(() => {
+    setPeopleLocations([])
+    setPeopleInterests([])
+    setPeopleLooking([])
+    setPeoplePreferences([])
+    setCustomPeopleInterest('')
   }, [])
 
   const addFriend = useCallback(() => {
@@ -454,6 +510,9 @@ export function useAppState() {
     setShowMemberProfile,
     member,
     openMember,
+    openMemberFromPeople,
+    addRecentPeopleSearch,
+    dismissRecentPeopleSearch,
     friendAdded,
     addFriend,
     consentState,
@@ -488,12 +547,21 @@ export function useAppState() {
     openFeedMenuId,
     setOpenFeedMenuId,
     feedPostAction,
-    peopleInterest,
-    setPeopleInterest,
+    peopleSearch,
+    setPeopleSearch,
+    peopleRecentSearches,
+    peopleLocations,
+    togglePeopleLocation,
+    peopleInterests,
+    togglePeopleInterest,
     peopleLooking,
-    setPeopleLooking,
-    peoplePreference,
-    setPeoplePreference,
+    togglePeopleLooking,
+    peoplePreferences,
+    togglePeoplePreference,
+    customPeopleInterest,
+    setCustomPeopleInterest,
+    addCustomPeopleInterest,
+    clearPeopleFilters,
     reactorOpen,
     reactorMode,
     reactorCtx,
