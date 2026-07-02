@@ -1,4 +1,5 @@
 import type { AppState } from '../hooks/useAppState'
+import { ME } from '../constants/user'
 import type { Screen } from '../types'
 
 const TABS: { id: Screen; label: string; dot?: boolean }[] = [
@@ -44,7 +45,7 @@ export function Nav({ app }: { app: AppState }) {
             ⚙️
           </button>
           <div className="nav-av" onClick={() => app.go('profile')}>
-            V
+            {ME.initial}
           </div>
         </div>
       </div>

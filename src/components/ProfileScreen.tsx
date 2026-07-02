@@ -1,7 +1,8 @@
 import type { AppState } from '../hooks/useAppState'
+import { ME } from '../constants/user'
 
 const TOP8 = [
-  { i: 'I', name: 'ironlace', grad: '135deg,#00FFC2,#5FD000', on: true },
+  { i: 'N', name: 'nocturne', grad: '135deg,#9EFF00,#00FFC2', on: true },
   { i: 'N', name: 'nocturne', grad: '135deg,#9EFF00,#00FFC2', on: true },
   { i: 'P', name: 'pupatlas', grad: '135deg,#7CE33A,#00FFC2', on: true },
   { i: 'M', name: 'mercuryknot', grad: '135deg,#5FD000,#9EFF00', on: false },
@@ -25,9 +26,9 @@ export function ProfileScreen({ app }: { app: AppState }) {
         <div className="prof-left">
           <div className="card">
             <div className="prof-av-row">
-              <div className="prof-av">V</div>
-              <div className="prof-name">velvetbound</div>
-              <div className="prof-handle">@velvetbound</div>
+              <div className="prof-av">{ME.initial}</div>
+              <div className="prof-name">{ME.handle}</div>
+              <div className="prof-handle">@{ME.handle}</div>
               <div className="prof-status"><span className="online" /> online now</div>
             </div>
 
@@ -43,14 +44,14 @@ export function ProfileScreen({ app }: { app: AppState }) {
             </div>
 
             <div className="prof-actions">
-              <button className="btn btn-primary spank-btn" onClick={() => app.spank('velvetbound')}>👋 Spank</button>
+              <button className="btn btn-primary spank-btn" onClick={() => app.spank(ME.handle)}>👋 Spank</button>
               <div className="spank-count">spanked {app.myProfileSpanks.toLocaleString()} times</div>
               <button className="btn btn-ghost" onClick={() => app.toast('Friend request sent')}>+ Add friend</button>
               <button className="btn btn-aqua" onClick={() => app.toast('Opening chat...')}>💬 Message</button>
             </div>
 
             <div className="details">
-              <div className="row"><span className="k">Dynamic</span><span className="v">sub / switch-leaning</span></div>
+              <div className="row"><span className="k">Dynamic</span><span className="v">Dom · founder energy</span></div>
               <div className="row"><span className="k">Pronouns</span><span className="v">she / they</span></div>
               <div className="row"><span className="k">Into</span><span className="v">rope, impact, latex</span></div>
               <div className="row"><span className="k">Looking for</span><span className="v">play partners, friends</span></div>
@@ -98,7 +99,7 @@ export function ProfileScreen({ app }: { app: AppState }) {
             <div className="wall-input">
               <input
                 type="text"
-                placeholder="Leave velvetbound a comment..."
+                placeholder={`Leave ${ME.handle} a comment...`}
                 value={app.wallInput}
                 onChange={(e) => app.setWallInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && app.postComment()}
@@ -115,11 +116,11 @@ export function ProfileScreen({ app }: { app: AppState }) {
                       background: `linear-gradient(${entry.grad ?? '135deg,#9EFF00,#00FFC2'})`,
                     }}
                   >
-                    {entry.initial ?? 'V'}
+                    {entry.initial ?? ME.initial}
                   </div>
                   <div className="we-body">
                     <div className="we-name">
-                      {entry.author ?? 'velvetbound'} <span>{entry.time ?? 'just now'}</span>
+                      {entry.author ?? ME.handle} <span>{entry.time ?? 'just now'}</span>
                     </div>
                     {entry.gifUrl ? (
                       <img className="we-gif" src={entry.gifUrl} alt={entry.gifAlt ?? 'gif reaction'} />

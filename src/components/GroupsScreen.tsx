@@ -1,8 +1,9 @@
 import type { AppState } from '../hooks/useAppState'
+import { ME } from '../constants/user'
 import type { MemberInfo } from '../types'
 
 const GROUPS = [
-  { name: 'Cruise LA', desc: 'Night outs, bar takeovers, and cruise meetups across LA. Consent first, always.', members: 412, online: 38, banner: '120deg,#1a3810,#0d2320', avatars: ['I', 'N', 'P', 'V'], colors: ['#9EFF00', '#00FFC2', '#7CE33A', '#5FD000'], tag: 'member' as const },
+  { name: 'Cruise LA', desc: 'Night outs, bar takeovers, and cruise meetups across LA. Consent first, always.', members: 412, online: 38, banner: '120deg,#1a3810,#0d2320', avatars: ['K', 'N', 'P', 'M'], colors: ['#9EFF00', '#00FFC2', '#7CE33A', '#5FD000'], tag: 'member' as const },
   { name: 'Rope & Ritual', desc: 'Shibari practice circle. Weekly tie sessions, skill shares, and safety workshops.', members: 156, online: 12, banner: '120deg,#0d2320,#1a3810', avatars: ['R', 'M', 'A'], colors: ['#00FFC2', '#9EFF00', '#7CE33A'], tag: 'member' as const },
   { name: 'Pup Park LA', desc: 'Pups, handlers, and everyone curious. Park meets, moshes, and gear swaps.', members: 289, online: 21, banner: '120deg,#16300f,#0a1a14', avatars: ['P', 'H', 'B'], colors: ['#7CE33A', '#9EFF00', '#00FFC2'], tag: 'member' as const },
   { name: 'Latex League', desc: 'Shine, gear care, and photo nights for the latex-obsessed. Invite only.', members: 218, online: 9, banner: '120deg,#0d2320,#16300f', avatars: ['L', 'S', 'T'], colors: ['#00FFC2', '#5FD000', '#9EFF00'], tag: 'invited' as const },
@@ -60,7 +61,7 @@ export function GroupsScreen({ app }: { app: AppState }) {
               <div>
                 <span className="pill">member · consent first</span>
                 <h2 style={{ marginTop: 8 }}>Cruise LA</h2>
-                <div className="gd-sub">412 members · 38 online · founded by ironlace</div>
+                <div className="gd-sub">412 members · 38 online · founded by {ME.handle}</div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button className="nav-icon" aria-label="Group settings" onClick={() => app.setShowGroupSettings(true)} style={{ background: 'rgba(10,13,11,.5)' }}>⚙️</button>
@@ -80,16 +81,16 @@ export function GroupsScreen({ app }: { app: AppState }) {
           <div className={`gd-pane${app.groupTab === 'g-feed' ? ' on' : ''}`} id="g-feed">
             <div className="card" style={{ overflow: 'hidden' }}>
               <div className="feed-item">
-                <div className="fi-av" style={{ background: 'linear-gradient(135deg,#00FFC2,#5FD000)' }}>I</div>
-                <div className="fi-body"><div className="top"><b>ironlace</b> pinned: house rules and consent norms. Read before your first meet.</div><div className="fi-time">pinned</div></div>
+                <div className="fi-av" style={{ background: `linear-gradient(${ME.grad})` }}>{ME.initial}</div>
+                <div className="fi-body"><div className="top"><b>{ME.handle}</b> pinned: house rules and consent norms. Read before your first meet.</div><div className="fi-time">pinned</div></div>
               </div>
               <div className="feed-item">
                 <div className="fi-av" style={{ background: 'linear-gradient(135deg,#9EFF00,#00FFC2)' }}>N</div>
                 <div className="fi-body"><div className="top"><b>nocturne</b>: who&apos;s coming Friday? first cruise night of the summer 🖤</div><div className="fi-time">1 hr ago · 14 replies</div></div>
               </div>
               <div className="feed-item">
-                <div className="fi-av" style={{ background: 'linear-gradient(135deg,#7CE33A,#00FFC2)' }}>V</div>
-                <div className="fi-body"><div className="top"><b>velvetbound</b> shared a gear pic from last week&apos;s meet</div><div className="fi-time">4 hr ago · 22 likes</div></div>
+                <div className="fi-av" style={{ background: `linear-gradient(${ME.grad})` }}>{ME.initial}</div>
+                <div className="fi-body"><div className="top"><b>{ME.handle}</b> shared a gear pic from last week&apos;s meet</div><div className="fi-time">4 hr ago · 22 likes</div></div>
               </div>
             </div>
           </div>
@@ -110,7 +111,7 @@ export function GroupsScreen({ app }: { app: AppState }) {
 
           <div className={`gd-pane${app.groupTab === 'g-mem' ? ' on' : ''}`} id="g-mem">
             <div className="mem-grid">
-              <div className="card mem"><div className="mem-av" style={{ background: 'linear-gradient(135deg,#00FFC2,#5FD000)' }}>I<span className="on" /></div><div className="mem-name">ironlace</div><div className="mem-dyn">Dom · founder</div></div>
+              <div className="card mem"><div className="mem-av" style={{ background: `linear-gradient(${ME.grad})` }}>{ME.initial}<span className="on" /></div><div className="mem-name">{ME.handle}</div><div className="mem-dyn">Dom · founder</div></div>
               {MEMBERS.map((m) => (
                 <div key={m.name} className="card mem" style={{ cursor: 'pointer' }} onClick={() => app.openMember(m)}>
                   <div className="mem-av" style={{ background: `linear-gradient(${m.grad})` }}>{m.initial}<span className="on" /></div>
@@ -119,7 +120,6 @@ export function GroupsScreen({ app }: { app: AppState }) {
                 </div>
               ))}
               {[
-                { i: 'V', grad: '135deg,#5FD000,#9EFF00', name: 'velvetbound', dyn: 'sub' },
                 { i: 'M', grad: '135deg,#00FFC2,#7CE33A', name: 'mercuryknot', dyn: 'Rigger' },
                 { i: 'B', grad: '135deg,#9EFF00,#5FD000', name: 'brattybean', dyn: 'Brat' },
               ].map((m) => (

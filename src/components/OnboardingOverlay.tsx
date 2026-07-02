@@ -1,4 +1,5 @@
 import type { AppState } from '../hooks/useAppState'
+import { ME } from '../constants/user'
 
 export function OnboardingOverlay({ app }: { app: AppState }) {
   return (
@@ -17,7 +18,7 @@ export function OnboardingOverlay({ app }: { app: AppState }) {
             <div className="ic-av">I</div>
             <div>
               <div className="ic-name">Cruise LA</div>
-              <div className="ic-sub">invited by @ironlace · 412 members</div>
+              <div className="ic-sub">invited by @nocturne · 412 members</div>
             </div>
           </div>
           <div className="age-gate">
@@ -32,20 +33,19 @@ export function OnboardingOverlay({ app }: { app: AppState }) {
         </div>
 
         <div className={`modal-step${app.onboardingStep === 1 ? ' on' : ''}`}>
-          <h2>Claim your handle</h2>
-          <p className="sub">This is how people find you. No real name required, ever.</p>
+          <h2>Choose your name</h2>
           <div className="handle-input">
             <span>@</span>
             <input
               type="text"
-              placeholder="yourhandle"
+              placeholder="yourname"
               value={app.handle}
               maxLength={20}
               onChange={(e) => app.setHandle(e.target.value)}
             />
           </div>
           <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', marginBottom: 16 }}>
-            You can add a photo and your dynamic later. Nothing is public until you choose.
+            You can add a photo and your dynamic(s) (later).
           </p>
           <button className="btn btn-primary center-flex" onClick={() => app.obStep(2)}>Continue</button>
         </div>
@@ -54,7 +54,7 @@ export function OnboardingOverlay({ app }: { app: AppState }) {
           <h2 style={{ fontSize: 26 }}>You&apos;re in ✨</h2>
           <p className="sub">Welcome to Cruise LA. Explore other groups, add who you vibe with, and set your own boundaries as you go.</p>
           <div className="invite-card" style={{ justifyContent: 'center', textAlign: 'center', flexDirection: 'column', gap: 6 }}>
-            <div className="ic-av" style={{ width: 56, height: 56, fontSize: 24 }}>V</div>
+            <div className="ic-av" style={{ width: 56, height: 56, fontSize: 24 }}>{ME.initial}</div>
             <div className="ic-name">@{app.handle}</div>
             <div className="ic-sub"><span className="online" /> you control who can reach you</div>
           </div>

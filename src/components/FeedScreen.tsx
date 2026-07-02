@@ -1,10 +1,10 @@
 import type { AppState } from '../hooks/useAppState'
+import { ME } from '../constants/user'
 import type { MemberInfo } from '../types'
 import { ReactionRow } from './ReactionRow'
 
 const ONLINE: MemberInfo[] = [
   { name: 'nocturne', initial: 'N', dyn: 'Switch', loc: 'DTLA', grad: '135deg,#9EFF00,#00FFC2' },
-  { name: 'ironlace', initial: 'I', dyn: 'Dom', loc: 'Silver Lake', grad: '135deg,#00FFC2,#5FD000' },
   { name: 'pupatlas', initial: 'P', dyn: 'Pup', loc: 'Highland Park', grad: '135deg,#7CE33A,#00FFC2' },
 ]
 
@@ -43,7 +43,7 @@ export function FeedScreen({ app }: { app: AppState }) {
               <div className="fi-action">
                 <button className="btn btn-aqua fi-mini" onClick={app.rsvpToast}>RSVP</button>
               </div>
-              <ReactionRow postId="post2" app={app} extra={['🥂']} />
+              <ReactionRow postId="post2" app={app} />
             </div>
           </div>
 
@@ -55,19 +55,19 @@ export function FeedScreen({ app }: { app: AppState }) {
               <div className="fi-action">
                 <button className="btn btn-ghost fi-mini" onClick={() => app.toast('Friend added: pupatlas')}>Accept</button>
               </div>
-              <ReactionRow postId="post3" app={app} extra={['🐾']} />
+              <ReactionRow postId="post3" app={app} />
             </div>
           </div>
 
           <div className="feed-item">
-            <div className="fi-av" style={{ background: 'linear-gradient(135deg,#00FFC2,#5FD000)' }}>I</div>
+            <div className="fi-av" style={{ background: `linear-gradient(${ME.grad})` }}>{ME.initial}</div>
             <div className="fi-body">
-              <div className="top"><b>ironlace</b> listed <span className="grn">Steel collar, mirror finish</span> in Market · pickup in Silver Lake</div>
+              <div className="top"><b>{ME.handle}</b> listed <span className="grn">Steel collar, mirror finish</span> in Market · pickup in Silver Lake</div>
               <div className="fi-time">2 hr ago · $150</div>
               <div className="fi-action">
                 <button className="btn btn-ghost fi-mini" onClick={() => app.go('market')}>View item</button>
               </div>
-              <ReactionRow postId="post4" app={app} extra={['⛓️']} />
+              <ReactionRow postId="post4" app={app} />
             </div>
           </div>
 
@@ -79,7 +79,7 @@ export function FeedScreen({ app }: { app: AppState }) {
               <div className="fi-action">
                 <button className="btn btn-aqua fi-mini" onClick={() => app.toast('Joining lobby...')}>Join game</button>
               </div>
-              <ReactionRow postId="post5" app={app} extra={['🎲', '😏']} />
+              <ReactionRow postId="post5" app={app} />
             </div>
           </div>
         </div>

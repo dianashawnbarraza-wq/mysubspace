@@ -33,8 +33,8 @@ export function SettingsPanel({ app }: { app: AppState }) {
           <h4>Who can reach you</h4>
           <div className="gnote">People you&apos;ve granted access to. Revoke anytime, no explanation owed.</div>
           {[
-            { i: 'I', grad: '135deg,#00FFC2,#5FD000', name: 'ironlace', perms: 'can spank · message · photos' },
-            { i: 'N', grad: '135deg,#9EFF00,#00FFC2', name: 'nocturne', perms: 'can spank · message' },
+            { i: 'N', grad: '135deg,#9EFF00,#00FFC2', name: 'nocturne', perms: 'can spank · message · photos' },
+            { i: 'M', grad: '135deg,#00FFC2,#7CE33A', name: 'mercuryknot', perms: 'can spank · message' },
             { i: 'P', grad: '135deg,#7CE33A,#00FFC2', name: 'pupatlas', perms: 'can message' },
           ].map((p) => (
             <PermRow key={p.name} {...p} onRevoke={() => app.toast('Access revoked')} />

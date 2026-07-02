@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ME } from '../constants/user'
 import { fetchGifs, type GifItem } from '../lib/giphy'
 import type {
   ConsentKind,
@@ -17,9 +18,9 @@ import type {
 const INITIAL_WALL: WallEntry[] = [
   {
     id: '1',
-    author: 'ironlace',
-    initial: 'I',
-    grad: '135deg,#00FFC2,#5FD000',
+    author: 'nocturne',
+    initial: 'N',
+    grad: '135deg,#9EFF00,#00FFC2',
     time: '2h ago',
     text: 'great meeting you at cruise night, welcome to the group 🖤',
   },
@@ -47,7 +48,7 @@ export function useAppState() {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingStep, setOnboardingStep] = useState(0)
   const [ageOk, setAgeOk] = useState(false)
-  const [handle, setHandle] = useState('velvetbound')
+  const [handle, setHandle] = useState<string>(ME.handle)
 
   const [showMemberProfile, setShowMemberProfile] = useState(false)
   const [member, setMember] = useState<MemberInfo>({
@@ -105,7 +106,7 @@ export function useAppState() {
 
   const spank = useCallback(
     (name: string) => {
-      if (name === 'velvetbound') {
+      if (name === ME.handle) {
         setMyProfileSpanks((n) => n + 1)
       }
       toast(`👋 You spanked ${name}`)
@@ -130,9 +131,9 @@ export function useAppState() {
       setWallEntries((entries) => [
         {
           id: crypto.randomUUID(),
-          author: 'velvetbound',
-          initial: 'V',
-          grad: '135deg,#9EFF00,#00FFC2',
+          author: ME.handle,
+          initial: ME.initial,
+          grad: ME.grad,
           time: 'just now',
           text: value,
           isNew: true,
@@ -270,9 +271,9 @@ export function useAppState() {
       setWallEntries((entries) => [
         {
           id: crypto.randomUUID(),
-          author: 'velvetbound',
-          initial: 'V',
-          grad: '135deg,#9EFF00,#00FFC2',
+          author: ME.handle,
+          initial: ME.initial,
+          grad: ME.grad,
           time: 'just now',
           gifUrl: url,
           gifAlt: title,

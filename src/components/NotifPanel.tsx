@@ -50,7 +50,7 @@ export function NotifPanel({ app }: { app: AppState }) {
           </div>
           <div className={`panel-pane${app.notifTab === 'np-act' ? ' on' : ''}`}>
             <div className="req"><div className="req-av" style={{ background: 'linear-gradient(135deg,#00FFC2,#5FD000)' }}>C</div><div className="req-body"><div className="req-text"><b>Cruise LA</b> event Friday Cruise Night is in 3 days</div><div className="req-time">today</div></div></div>
-            <div className="req"><div className="req-av" style={{ background: 'linear-gradient(135deg,#00FFC2,#5FD000)' }}>I</div><div className="req-body"><div className="req-text"><b>ironlace</b> left a comment on your wall</div><div className="req-time">2 hr ago</div></div></div>
+            <div className="req"><div className="req-av" style={{ background: 'linear-gradient(135deg,#9EFF00,#00FFC2)' }}>N</div><div className="req-body"><div className="req-text"><b>nocturne</b> left a comment on your wall</div><div className="req-time">2 hr ago</div></div></div>
             <div className="req"><div className="req-av" style={{ background: 'linear-gradient(135deg,#9EFF00,#7CE33A)' }}>R</div><div className="req-body"><div className="req-text"><b>Rope &amp; Ritual</b> opened a Truth or Dare lobby</div><div className="req-time">3 hr ago</div></div></div>
           </div>
         </div>
