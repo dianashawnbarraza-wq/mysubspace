@@ -37,9 +37,9 @@ export function FeedScreen({ app }: { app: AppState }) {
               avatar={<Av initial="N" grad="135deg,#9EFF00,#00FFC2" />}
               meta={
                 app.flirtRequest === 'pending' ? (
-                  <FeedMeta label="flirt request" time="7 min ago" />
+                  <FeedMeta group={null} label="flirt request" visibility="private" time="7 min ago" />
                 ) : (
-                  <FeedMeta visibility="private" time="just now" />
+                  <FeedMeta group={null} visibility="private" time="just now" />
                 )
               }
               action={

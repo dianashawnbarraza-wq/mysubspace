@@ -7,22 +7,34 @@ export function FeedMeta({
   label,
   time,
 }: {
-  group?: string
+  group?: string | null
   visibility?: 'public' | 'private'
   label?: string
   time: string
 }) {
-  const tag = label ?? visibility
+  const showGroup = group !== null
+  const groupName = group ?? PRIMARY_GROUP
+
   return (
     <div className="fi-meta">
-      <span className="fi-group">{group}</span>
-      {tag && (
+      {showGroup && (
         <>
+          <span className="fi-group">{groupName}</span>
           <span className="fi-meta-dot">·</span>
-          <span className={`fi-vis${label ? ' label' : ''}${visibility === 'private' ? ' private' : ''}`}>{tag}</span>
         </>
       )}
-      <span className="fi-meta-dot">·</span>
+      {label && (
+        <>
+          <span className="fi-vis label">{label}</span>
+          <span className="fi-meta-dot">·</span>
+        </>
+      )}
+      {visibility && (
+        <>
+          <span className={`fi-vis${visibility === 'private' ? ' private' : ''}`}>{visibility}</span>
+          <span className="fi-meta-dot">·</span>
+        </>
+      )}
       <span className="fi-time-inline">{time}</span>
     </div>
   )
