@@ -71,7 +71,7 @@ export function ProfileScreen({ app }: { app: AppState }) {
               </div>
 
               <div className="details">
-                <div className="row"><span className="k">Dynamic</span><span className="v">Dom · founder energy</span></div>
+                <div className="row"><span className="k">Dynamic</span><span className="v">Dom, Founding Dog</span></div>
                 <div className="row"><span className="k">Pronouns</span><span className="v">he / they</span></div>
                 <div className="row"><span className="k">Into</span><span className="v">leather, bondage, impact</span></div>
                 <div className="row"><span className="k">Looking for</span><span className="v">play partners, friends</span></div>
