@@ -4,6 +4,7 @@ import { fetchGifs, type GifItem } from '../lib/giphy'
 import type {
   ConsentKind,
   ConsentStatus,
+  FeedSpankEntry,
   GroupTab,
   MemberInfo,
   PanelTab,
@@ -11,6 +12,7 @@ import type {
   ReactorMode,
   ReactorTab,
   Screen,
+  SpankVisibility,
   WallEntry,
 } from '../types'
 
@@ -79,6 +81,9 @@ export function useAppState() {
   const [reactions, setReactions] = useState<ReactionMap>({})
 
   const [flirtRequest, setFlirtRequest] = useState<'pending' | 'accepted' | 'denied'>('pending')
+  const [flirtRequestVisibility] = useState<SpankVisibility>('private')
+  const [flirtSpankVisibility, setFlirtSpankVisibility] = useState<SpankVisibility | null>(null)
+  const [feedSpanks, setFeedSpanks] = useState<FeedSpankEntry[]>([])
 
   const [feedExpanded, setFeedExpanded] = useState(false)
 
@@ -107,10 +112,20 @@ export function useAppState() {
   )
 
   const spank = useCallback(
-    (name: string, visibility: 'public' | 'private' = 'public') => {
+    (name: string, visibility: SpankVisibility = 'public') => {
       if (name === ME.handle) {
         setMyProfileSpanks((n) => n + 1)
       }
+      setFeedSpanks((entries) => [
+        {
+          id: crypto.randomUUID(),
+          spanker: ME.handle,
+          target: name,
+          visibility,
+          time: 'just now',
+        },
+        ...entries,
+      ])
       toast(`👋 You spanked ${name} · ${visibility}`)
     },
     [toast],
@@ -121,8 +136,9 @@ export function useAppState() {
 
   const acceptFlirtRequest = useCallback(() => {
     setFlirtRequest('accepted')
-    toast('Nocturne spanked you · private')
-  }, [toast])
+    setFlirtSpankVisibility(flirtRequestVisibility)
+    toast(`Nocturne spanked you · ${flirtRequestVisibility}`)
+  }, [flirtRequestVisibility, toast])
 
   const denyFlirtRequest = useCallback(() => {
     setFlirtRequest('denied')
@@ -395,8 +411,11 @@ export function useAppState() {
     reactions,
     toggleReaction,
     flirtRequest,
+    flirtRequestVisibility,
+    flirtSpankVisibility,
     acceptFlirtRequest,
     denyFlirtRequest,
+    feedSpanks,
     feedExpanded,
     setFeedExpanded,
     reactorOpen,

@@ -1,5 +1,15 @@
 export type Screen = 'feed' | 'groups' | 'market' | 'profile'
 
+export type SpankVisibility = 'public' | 'private'
+
+export type FeedSpankEntry = {
+  id: string
+  spanker: string
+  target: string
+  visibility: SpankVisibility
+  time: string
+}
+
 export type ConsentKind = 'spank' | 'message' | 'photo'
 export type ConsentStatus = 'none' | 'pending' | 'active'
 

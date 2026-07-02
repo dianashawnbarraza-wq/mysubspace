@@ -1,37 +1,66 @@
 import type { ReactNode } from 'react'
+import type { SpankVisibility } from '../types'
 import { FEED_LABEL } from '../constants/group'
 
+export function flirtRequestMeta(visibility: SpankVisibility, time: string) {
+  return { label: 'Flirt Request' as const, visibility, time }
+}
+
+export function spankMeta(visibility: SpankVisibility, time: string) {
+  return { group: FEED_LABEL, visibility, time }
+}
+
+export function SpankActions({
+  onSpank,
+  label = 'Spank',
+}: {
+  onSpank: (visibility: SpankVisibility) => void
+  label?: string
+}) {
+  return (
+    <div className="fi-action-row">
+      <button type="button" className="btn btn-primary fi-mini" onClick={() => onSpank('public')}>
+        {label} · Public
+      </button>
+      <button type="button" className="btn btn-ghost fi-mini" onClick={() => onSpank('private')}>
+        {label} · Private
+      </button>
+    </div>
+  )
+}
+
 export function FeedMeta({
-  group = FEED_LABEL,
+  group,
   visibility,
   label,
   time,
 }: {
-  group?: string | null
+  group?: string
   visibility?: 'public' | 'private'
   label?: string
   time: string
 }) {
-  const showGroup = group !== null
-  const groupName = group ?? FEED_LABEL
+  const visLabel = visibility
+    ? visibility.charAt(0).toUpperCase() + visibility.slice(1)
+    : undefined
 
   return (
     <div className="fi-meta">
-      {showGroup && (
-        <>
-          <span className="fi-group">{groupName}</span>
-          <span className="fi-meta-dot">·</span>
-        </>
-      )}
       {label && (
         <>
           <span className="fi-vis label">{label}</span>
           <span className="fi-meta-dot">·</span>
         </>
       )}
-      {visibility && (
+      {group && (
         <>
-          <span className={`fi-vis${visibility === 'private' ? ' private' : ''}`}>{visibility}</span>
+          <span className="fi-group">{group}</span>
+          <span className="fi-meta-dot">·</span>
+        </>
+      )}
+      {visLabel && (
+        <>
+          <span className={`fi-vis${visibility === 'private' ? ' private' : ''}`}>{visLabel}</span>
           <span className="fi-meta-dot">·</span>
         </>
       )}

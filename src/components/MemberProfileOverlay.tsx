@@ -1,5 +1,6 @@
 import type { AppState } from '../hooks/useAppState'
 import type { ConsentKind } from '../types'
+import { SpankActions } from './FeedItem'
 
 const CONSENT: { kind: ConsentKind; icon: string; label: string; defaultSub: string }[] = [
   { kind: 'spank', icon: '👋', label: 'Spank', defaultSub: 'Playful nudge, needs approval' },
@@ -85,6 +86,17 @@ export function MemberProfileOverlay({ app }: { app: AppState }) {
                 </div>
               )
             })}
+            {app.consentState.spank === 'active' && (
+              <div className="spank-actions">
+                <div className="consent-title">Ready to spank</div>
+                <SpankActions
+                  onSpank={(visibility) => {
+                    app.spank(app.member.name, visibility)
+                    app.setShowMemberProfile(false)
+                  }}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
