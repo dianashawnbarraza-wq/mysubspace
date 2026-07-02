@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ME } from '../constants/user'
+import { locationFromZip } from '../constants/location'
+import type { InterestFilter, LookingFilter, PreferenceFilter } from '../constants/people'
 import { fetchGifs, type GifItem } from '../lib/giphy'
 import type {
   ConsentKind,
@@ -50,6 +52,18 @@ export function useAppState() {
   const [onboardingStep, setOnboardingStep] = useState(0)
   const [ageOk, setAgeOk] = useState(false)
   const [handle, setHandle] = useState<string>(ME.handle)
+  const [zipCode, setZipCode] = useState('')
+  const [phone, setPhone] = useState('')
+  const [phoneCode, setPhoneCode] = useState('')
+  const [locationCity, setLocationCity] = useState('Los Angeles')
+  const [idVerificationRequired, setIdVerificationRequired] = useState(false)
+
+  const [peopleInterest, setPeopleInterest] = useState<InterestFilter>('All')
+  const [peopleLooking, setPeopleLooking] = useState<LookingFilter>('All')
+  const [peoplePreference, setPeoplePreference] = useState<PreferenceFilter>('All')
+
+  const [hiddenPostIds, setHiddenPostIds] = useState<string[]>([])
+  const [openFeedMenuId, setOpenFeedMenuId] = useState<string | null>(null)
 
   const [showMemberProfile, setShowMemberProfile] = useState(false)
   const [member, setMember] = useState<MemberInfo>({
@@ -176,6 +190,13 @@ export function useAppState() {
 
   const obStep = useCallback((n: number) => setOnboardingStep(n), [])
 
+  const submitZip = useCallback(() => {
+    const loc = locationFromZip(zipCode)
+    setLocationCity(loc.city)
+    setIdVerificationRequired(loc.idVerificationRequired)
+    setOnboardingStep(2)
+  }, [zipCode])
+
   const finishOnboarding = useCallback(() => {
     setShowOnboarding(false)
     toast('Welcome to mysubspace 💚')
@@ -184,6 +205,11 @@ export function useAppState() {
   const replayInvite = useCallback(() => {
     setAgeOk(false)
     setOnboardingStep(0)
+    setZipCode('')
+    setPhone('')
+    setPhoneCode('')
+    setLocationCity('Los Angeles')
+    setIdVerificationRequired(false)
     setShowOnboarding(true)
   }, [])
 
@@ -328,6 +354,21 @@ export function useAppState() {
     [loadGifs],
   )
 
+  const feedPostAction = useCallback(
+    (postId: string, action: 'bookmark' | 'hide' | 'report') => {
+      setOpenFeedMenuId(null)
+      if (action === 'hide') {
+        setHiddenPostIds((ids) => [...ids, postId])
+        toast('Post hidden from your feed')
+      } else if (action === 'bookmark') {
+        toast('Saved to bookmarks')
+      } else {
+        toast('Report sent to mods')
+      }
+    },
+    [toast],
+  )
+
   const closeAllPanels = useCallback(() => setOpenPanel(null), [])
 
   useEffect(() => {
@@ -342,6 +383,7 @@ export function useAppState() {
       setShowMemberProfile(false)
       setShowGroupSettings(false)
       setMpMenuOpen(false)
+      setOpenFeedMenuId(null)
       closeReactor()
     }
     document.addEventListener('keydown', onKey)
@@ -353,6 +395,12 @@ export function useAppState() {
     if (mpMenuOpen) document.addEventListener('click', onClick)
     return () => document.removeEventListener('click', onClick)
   }, [mpMenuOpen])
+
+  useEffect(() => {
+    const onClick = () => setOpenFeedMenuId(null)
+    if (openFeedMenuId) document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  }, [openFeedMenuId])
 
   useEffect(() => {
     if (!reactorOpen) return
@@ -390,6 +438,15 @@ export function useAppState() {
     toggleAge,
     handle,
     setHandle,
+    zipCode,
+    setZipCode,
+    phone,
+    setPhone,
+    phoneCode,
+    setPhoneCode,
+    locationCity,
+    idVerificationRequired,
+    submitZip,
     obStep,
     finishOnboarding,
     replayInvite,
@@ -427,6 +484,16 @@ export function useAppState() {
     acceptFlirtRequest,
     denyFlirtRequest,
     feedSpanks,
+    hiddenPostIds,
+    openFeedMenuId,
+    setOpenFeedMenuId,
+    feedPostAction,
+    peopleInterest,
+    setPeopleInterest,
+    peopleLooking,
+    setPeopleLooking,
+    peoplePreference,
+    setPeoplePreference,
     reactorOpen,
     reactorMode,
     reactorCtx,

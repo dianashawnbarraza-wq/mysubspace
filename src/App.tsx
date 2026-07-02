@@ -1,5 +1,6 @@
 import { PasswordGate } from './components/PasswordGate'
 import { useAppState } from './hooks/useAppState'
+import { PeopleScreen } from './components/PeopleScreen'
 import { FeedScreen } from './components/FeedScreen'
 import { GroupsScreen } from './components/GroupsScreen'
 import { ProfileScreen } from './components/ProfileScreen'
@@ -25,8 +26,9 @@ export default function App() {
       <main>
         <FeedScreen app={app} />
         <GroupsScreen app={app} />
-        <ProfileScreen app={app} />
+        <PeopleScreen app={app} />
         <MarketScreen app={app} />
+        <ProfileScreen app={app} />
       </main>
 
       <OnboardingOverlay app={app} />

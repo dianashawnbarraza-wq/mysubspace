@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { SpankVisibility } from '../types'
 import { FEED_LABEL } from '../constants/group'
+import type { AppState } from '../hooks/useAppState'
 
 export function flirtRequestMeta(visibility: SpankVisibility, time: string) {
   return { label: 'Flirt Request' as const, visibility, time }
@@ -69,12 +70,49 @@ export function FeedMeta({
   )
 }
 
+export function FeedPostMenu({
+  postId,
+  app,
+}: {
+  postId: string
+  app: AppState
+}) {
+  const open = app.openFeedMenuId === postId
+
+  return (
+    <div className="fi-menu-wrap">
+      <button
+        type="button"
+        className="fi-menu-btn"
+        aria-label="Post options"
+        onClick={(e) => {
+          e.stopPropagation()
+          app.setOpenFeedMenuId(open ? null : postId)
+        }}
+      >
+        ⋯
+      </button>
+      {open && (
+        <div className="fi-menu" onClick={(e) => e.stopPropagation()}>
+          <button type="button" onClick={() => app.feedPostAction(postId, 'bookmark')}>Bookmark</button>
+          <button type="button" onClick={() => app.feedPostAction(postId, 'hide')}>Hide</button>
+          <button type="button" className="danger" onClick={() => app.feedPostAction(postId, 'report')}>Report</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function FeedItem({
+  postId,
+  app,
   avatar,
   children,
   meta,
   action,
 }: {
+  postId?: string
+  app?: AppState
   avatar: ReactNode
   children: ReactNode
   meta: ReactNode
@@ -84,7 +122,10 @@ export function FeedItem({
     <div className="feed-item">
       {avatar}
       <div className="fi-body">
-        <div className="top">{children}</div>
+        <div className="fi-top-row">
+          <div className="top">{children}</div>
+          {postId && app && <FeedPostMenu postId={postId} app={app} />}
+        </div>
         {meta}
         {action && <div className="fi-action">{action}</div>}
       </div>
@@ -92,7 +133,13 @@ export function FeedItem({
   )
 }
 
-export function FeedExploreCta({ onGroups, onNearby }: { onGroups: () => void; onNearby: () => void }) {
+export function FeedExploreCta({
+  onGroups,
+  onNearby,
+}: {
+  onGroups: () => void
+  onNearby: () => void
+}) {
   return (
     <div className="feed-explore">
       <p className="eyebrow" style={{ marginBottom: 8 }}>Keep exploring</p>
@@ -105,7 +152,7 @@ export function FeedExploreCta({ onGroups, onNearby }: { onGroups: () => void; o
           Explore groups
         </button>
         <button type="button" className="btn btn-aqua fi-mini" onClick={onNearby}>
-          Profiles nearby
+          Find locals
         </button>
       </div>
     </div>

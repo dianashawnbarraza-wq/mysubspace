@@ -48,8 +48,8 @@ export function ProfileScreen({ app }: { app: AppState }) {
                     📷
                   </button>
                 </div>
-                <div className="prof-name">{ME.handle}</div>
-                <div className="prof-handle">@{ME.handle}</div>
+                <div className="prof-name">{app.handle}</div>
+                <div className="prof-handle">@{app.handle}</div>
                 <div className="prof-status"><span className="online" /> online now</div>
               </div>
 
@@ -73,6 +73,8 @@ export function ProfileScreen({ app }: { app: AppState }) {
               <div className="details">
                 <div className="row"><span className="k">Dynamic</span><span className="v">Dom, Founding Dog</span></div>
                 <div className="row"><span className="k">Pronouns</span><span className="v">he / they</span></div>
+                <div className="row"><span className="k">Sexuality</span><span className="v">queer</span></div>
+                <div className="row"><span className="k">Gender identity</span><span className="v">transmasc</span></div>
                 <div className="row"><span className="k">Into</span><span className="v">leather, bondage, impact</span></div>
                 <div className="row"><span className="k">Looking for</span><span className="v">play partners, friends</span></div>
                 <div className="row"><span className="k">Location</span><span className="v">Northeast LA</span></div>

@@ -1,4 +1,4 @@
-export type Screen = 'feed' | 'groups' | 'market' | 'profile'
+export type Screen = 'feed' | 'groups' | 'people' | 'market' | 'profile'
 
 export type SpankVisibility = 'public' | 'private'
 
@@ -19,6 +19,11 @@ export type MemberInfo = {
   dyn: string
   loc: string
   grad: string
+  sexuality?: string
+  genderIdentity?: string
+  interests?: string[]
+  lookingFor?: string[]
+  sexualPreference?: string
 }
 
 export type ReactionMap = Record<string, Record<string, { count: number; mine: boolean }>>

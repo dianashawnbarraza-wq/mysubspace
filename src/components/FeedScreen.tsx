@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { AppState } from '../hooks/useAppState'
 import { ME } from '../constants/user'
-import { FEED_LABEL, PRIMARY_GROUP } from '../constants/group'
+import { PRIMARY_GROUP } from '../constants/group'
 import type { MemberInfo } from '../types'
 import { ReactionRow } from './ReactionRow'
 import { FeedExploreCta, FeedItem, FeedMeta, SpankActions, flirtRequestMeta, spankMeta } from './FeedItem'
@@ -17,6 +17,10 @@ function Av({ initial, grad }: { initial: string; grad: string }) {
       {initial}
     </div>
   )
+}
+
+function visible(app: AppState, postId: string) {
+  return !app.hiddenPostIds.includes(postId)
 }
 
 export function FeedScreen({ app }: { app: AppState }) {
@@ -38,21 +42,25 @@ export function FeedScreen({ app }: { app: AppState }) {
     return () => observer.disconnect()
   }, [feedExpanded])
 
+  const cityLabel = app.locationCity === 'your area' ? 'near you' : app.locationCity
+
   return (
     <section className={`screen${app.screen === 'feed' ? ' active' : ''}`} id="feed">
       <div className="hero">
         <p className="eyebrow hero-welcome">
-          Welcome, <em>{ME.handle}</em>
+          Welcome, <em>{app.handle}</em>
         </p>
         <h1>
-          What&apos;s happening <em>tonight</em>
+          What&apos;s happening in <em>{cityLabel}</em>
         </h1>
       </div>
 
       <div className="feed-grid">
         <div className="card feed-list">
-          {app.flirtRequest !== 'denied' && (
+          {app.flirtRequest !== 'denied' && visible(app, 'post-flirt') && (
             <FeedItem
+              postId="post-flirt"
+              app={app}
               avatar={<Av initial="N" grad="135deg,#9EFF00,#00FFC2" />}
               meta={
                 app.flirtRequest === 'pending' ? (
@@ -90,98 +98,130 @@ export function FeedScreen({ app }: { app: AppState }) {
             </FeedItem>
           )}
 
-          {app.feedSpanks.map((entry) => (
+          {app.feedSpanks.map((entry) =>
+            visible(app, entry.id) ? (
+              <FeedItem
+                key={entry.id}
+                postId={entry.id}
+                app={app}
+                avatar={<Av initial={ME.initial} grad={ME.grad} />}
+                meta={<FeedMeta {...spankMeta(entry.visibility, entry.time)} />}
+              >
+                <b>{entry.spanker}</b> <span className="grn">spanked</span> <b>{entry.target}</b> 👋
+              </FeedItem>
+            ) : null,
+          )}
+
+          {visible(app, 'post2') && (
             <FeedItem
-              key={entry.id}
-              avatar={<Av initial={ME.initial} grad={ME.grad} />}
-              meta={<FeedMeta {...spankMeta(entry.visibility, entry.time)} />}
+              postId="post2"
+              app={app}
+              avatar={<Av initial="C" grad="135deg,#00FFC2,#9EFF00" />}
+              meta={<FeedMeta group={PRIMARY_GROUP} visibility="public" time="32 min ago · Fri, Jul 11 · 9:00 PM" />}
+              action={
+                <>
+                  <button type="button" className="btn btn-aqua fi-mini" onClick={app.rsvpToast}>RSVP</button>
+                  <ReactionRow postId="post2" app={app} extra={['🥂']} />
+                </>
+              }
             >
-              <b>{entry.spanker}</b> <span className="grn">spanked</span> <b>{entry.target}</b> 👋
+              <b>{PRIMARY_GROUP}</b> posted an event: <b>Friday Cruise Night</b> at Bar Franca
             </FeedItem>
-          ))}
+          )}
 
-          <FeedItem
-            avatar={<Av initial="C" grad="135deg,#00FFC2,#9EFF00" />}
-            meta={<FeedMeta group={PRIMARY_GROUP} visibility="public" time="32 min ago · Fri, Jul 11 · 9:00 PM" />}
-            action={
-              <>
-                <button type="button" className="btn btn-aqua fi-mini" onClick={app.rsvpToast}>RSVP</button>
-                <ReactionRow postId="post2" app={app} extra={['🥂']} />
-              </>
-            }
-          >
-            <b>{PRIMARY_GROUP}</b> posted an event: <b>Friday Cruise Night</b> at Bar Franca
-          </FeedItem>
-
-          <FeedItem
-            avatar={<Av initial="N" grad="135deg,#9EFF00,#00FFC2" />}
-            meta={<FeedMeta group={PRIMARY_GROUP} visibility="public" time="1 hr ago · 14 replies" />}
-            action={<ReactionRow postId="post3" app={app} extra={['🐾']} />}
-          >
-            <b>nocturne</b>: who&apos;s coming Friday? first cruise night of the summer 🖤
-          </FeedItem>
+          {visible(app, 'post3') && (
+            <FeedItem
+              postId="post3"
+              app={app}
+              avatar={<Av initial="N" grad="135deg,#9EFF00,#00FFC2" />}
+              meta={<FeedMeta group={PRIMARY_GROUP} visibility="public" time="1 hr ago · 14 replies" />}
+              action={<ReactionRow postId="post3" app={app} extra={['🐾']} />}
+            >
+              <b>nocturne</b>: who&apos;s coming Friday? first cruise night of the summer 🖤
+            </FeedItem>
+          )}
 
           <FeedExploreCta
             onGroups={() => app.go('groups')}
-            onNearby={() => app.toast('Showing profiles near you in LA…')}
+            onNearby={() => app.go('people')}
           />
 
-          <FeedItem
-            avatar={<Av initial={ME.initial} grad={ME.grad} />}
-            meta={<FeedMeta label="Member" group={PRIMARY_GROUP} visibility="public" time="2 hr ago · $150" />}
-            action={
-              <>
-                <button type="button" className="btn btn-ghost fi-mini" onClick={() => app.go('market')}>View item</button>
-                <ReactionRow postId="post4" app={app} extra={['⛓️']} />
-              </>
-            }
-          >
-            <b>{ME.handle}</b> listed <span className="grn">Steel collar, mirror finish</span> in Market · Silver Lake
-          </FeedItem>
+          {visible(app, 'post4') && (
+            <FeedItem
+              postId="post4"
+              app={app}
+              avatar={<Av initial={ME.initial} grad={ME.grad} />}
+              meta={<FeedMeta label="Member" group={PRIMARY_GROUP} visibility="public" time="2 hr ago · $150" />}
+              action={
+                <>
+                  <button type="button" className="btn btn-ghost fi-mini" onClick={() => app.go('market')}>View item</button>
+                  <ReactionRow postId="post4" app={app} extra={['⛓️']} />
+                </>
+              }
+            >
+              <b>{app.handle}</b> listed <span className="grn">Steel collar, mirror finish</span> in Market · Silver Lake
+            </FeedItem>
+          )}
 
-          <FeedItem
-            avatar={<Av initial="V" grad="135deg,#7CE33A,#00FFC2" />}
-            meta={<FeedMeta {...spankMeta('public', '3 hr ago')} />}
-          >
-            <b>velvetbound</b> <span className="grn">spanked</span> <b>brattybean</b> 👋
-          </FeedItem>
+          {visible(app, 'post5') && (
+            <FeedItem
+              postId="post5"
+              app={app}
+              avatar={<Av initial="V" grad="135deg,#7CE33A,#00FFC2" />}
+              meta={<FeedMeta {...spankMeta('public', '3 hr ago')} />}
+            >
+              <b>velvetbound</b> <span className="grn">spanked</span> <b>brattybean</b> 👋
+            </FeedItem>
+          )}
 
           <div ref={loadMoreRef} className="feed-load-sentinel" aria-hidden="true" />
 
           {feedExpanded && (
             <>
-              <FeedItem
-                avatar={<Av initial="R" grad="135deg,#9EFF00,#7CE33A" />}
-                meta={<FeedMeta group={FEED_LABEL} visibility="public" time="4 hr ago · 4 waiting" />}
-                action={
-                  <>
-                    <button type="button" className="btn btn-aqua fi-mini" onClick={() => app.toast('Joining lobby...')}>Join game</button>
-                    <ReactionRow postId="post5" app={app} extra={['🎲', '😏']} />
-                  </>
-                }
-              >
-                <b>Rope &amp; Ritual</b> wants to play: <span className="grn">Truth or Dare</span> lobby is open
-              </FeedItem>
+              {visible(app, 'post6') && (
+                <FeedItem
+                  postId="post6"
+                  app={app}
+                  avatar={<Av initial="R" grad="135deg,#9EFF00,#7CE33A" />}
+                  meta={<FeedMeta group="Rope & Ritual" visibility="public" time="4 hr ago · 4 waiting" />}
+                  action={
+                    <>
+                      <button type="button" className="btn btn-aqua fi-mini" onClick={() => app.toast('Joining lobby...')}>Join game</button>
+                      <ReactionRow postId="post6" app={app} extra={['🎲', '😏']} />
+                    </>
+                  }
+                >
+                  <b>Rope &amp; Ritual</b> wants to play: <span className="grn">Truth or Dare</span> lobby is open
+                </FeedItem>
+              )}
 
-              <FeedItem
-                avatar={<Av initial="P" grad="135deg,#7CE33A,#00FFC2" />}
-                meta={<FeedMeta label="Member" group="Pup Park LA" visibility="public" time="5 hr ago" />}
-                action={
-                  <button type="button" className="btn btn-ghost fi-mini" onClick={() => app.toast('Friend added: pupatlas')}>
-                    Accept
-                  </button>
-                }
-              >
-                <b>pupatlas</b> joined <span className="grn">Pup Park LA</span> and added you as a friend
-              </FeedItem>
+              {visible(app, 'post7') && (
+                <FeedItem
+                  postId="post7"
+                  app={app}
+                  avatar={<Av initial="P" grad="135deg,#7CE33A,#00FFC2" />}
+                  meta={<FeedMeta label="Member" group="Pup Park LA" visibility="public" time="5 hr ago" />}
+                  action={
+                    <button type="button" className="btn btn-ghost fi-mini" onClick={() => app.toast('Friend added: pupatlas')}>
+                      Accept
+                    </button>
+                  }
+                >
+                  <b>pupatlas</b> joined <span className="grn">Pup Park LA</span> and added you as a friend
+                </FeedItem>
+              )}
 
-              <FeedItem
-                avatar={<Av initial="M" grad="135deg,#00FFC2,#7CE33A" />}
-                meta={<FeedMeta group={FEED_LABEL} visibility="public" time="6 hr ago" />}
-                action={<ReactionRow postId="post6" app={app} extra={['🔥']} />}
-              >
-                <b>mercuryknot</b> shared photos from last week&apos;s tie session
-              </FeedItem>
+              {visible(app, 'post8') && (
+                <FeedItem
+                  postId="post8"
+                  app={app}
+                  avatar={<Av initial="M" grad="135deg,#00FFC2,#7CE33A" />}
+                  meta={<FeedMeta group="Rope & Ritual" visibility="public" time="6 hr ago" />}
+                  action={<ReactionRow postId="post8" app={app} extra={['🔥']} />}
+                >
+                  <b>mercuryknot</b> shared photos from last week&apos;s tie session
+                </FeedItem>
+              )}
             </>
           )}
         </div>
@@ -205,6 +245,14 @@ export function FeedScreen({ app }: { app: AppState }) {
                 </button>
               </div>
             ))}
+          </div>
+
+          <div className="card side-card">
+            <h3>Connect locally</h3>
+            <p className="side-note">Find people in {app.locationCity} by interests and what they&apos;re looking for.</p>
+            <button type="button" className="btn btn-primary who-btn" style={{ width: '100%' }} onClick={() => app.go('people')}>
+              Search people
+            </button>
           </div>
 
           <div className="card side-card">

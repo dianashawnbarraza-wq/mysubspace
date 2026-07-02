@@ -64,6 +64,18 @@ export function MemberProfileOverlay({ app }: { app: AppState }) {
             <span className="k">Into</span>
             <span className="v">{snippet.into}</span>
           </div>
+          {app.member.sexuality && (
+            <div className="mp-detail">
+              <span className="k">Sexuality</span>
+              <span className="v">{app.member.sexuality}</span>
+            </div>
+          )}
+          {app.member.genderIdentity && (
+            <div className="mp-detail">
+              <span className="k">Gender identity</span>
+              <span className="v">{app.member.genderIdentity}</span>
+            </div>
+          )}
           <div className="mp-detail">
             <span className="k">Location</span>
             <span className="v">{app.member.loc}</span>

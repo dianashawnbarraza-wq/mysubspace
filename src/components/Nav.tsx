@@ -5,6 +5,7 @@ import type { Screen } from '../types'
 const TABS: { id: Screen; label: string; dot?: boolean }[] = [
   { id: 'feed', label: 'Feed' },
   { id: 'groups', label: 'Groups' },
+  { id: 'people', label: 'People' },
   { id: 'market', label: 'Market' },
   { id: 'profile', label: 'You', dot: true },
 ]
