@@ -1,3 +1,4 @@
+import { PasswordGate } from './components/PasswordGate'
 import { useAppState } from './hooks/useAppState'
 import { FeedScreen } from './components/FeedScreen'
 import { GroupsScreen } from './components/GroupsScreen'
@@ -17,7 +18,7 @@ export default function App() {
   const app = useAppState()
 
   return (
-    <>
+    <PasswordGate>
       <InviteStrip app={app} />
       <Nav app={app} />
 
@@ -35,6 +36,6 @@ export default function App() {
       <GroupSettingsOverlay app={app} />
       <Reactor app={app} />
       <Toast message={app.toastMsg} />
-    </>
+    </PasswordGate>
   )
 }
