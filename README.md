@@ -4,6 +4,14 @@ A MySpace-inspired social space for kink communities — feed, groups, profiles,
 
 Built from the original HTML prototype as a **Vite + React + TypeScript** app.
 
+## Live demo
+
+**https://mysubspace.vercel.app**
+
+## Repository
+
+**https://github.com/dianashawnbarraza-wq/mysubspace**
+
 ## Run locally
 
 ```bash
@@ -12,6 +20,16 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173).
+
+## Deploy
+
+Connected to [Vercel](https://vercel.com). Pushes to `main` can auto-deploy once the GitHub repo is linked in the Vercel project settings (Dashboard → mysubspace → Git).
+
+Manual deploy:
+
+```bash
+npx vercel deploy --prod
+```
 
 ## Scripts
 
