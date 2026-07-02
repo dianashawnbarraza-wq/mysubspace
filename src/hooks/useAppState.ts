@@ -85,8 +85,6 @@ export function useAppState() {
   const [flirtSpankVisibility, setFlirtSpankVisibility] = useState<SpankVisibility | null>(null)
   const [feedSpanks, setFeedSpanks] = useState<FeedSpankEntry[]>([])
 
-  const [feedExpanded, setFeedExpanded] = useState(false)
-
   const [reactorOpen, setReactorOpen] = useState(false)
   const [reactorMode, setReactorMode] = useState<ReactorMode>('feed')
   const [reactorCtx, setReactorCtx] = useState('')
@@ -198,25 +196,38 @@ export function useAppState() {
   }, [])
 
   const addFriend = useCallback(() => {
+    if (friendAdded) return
     setFriendAdded(true)
-    toast('Friend added. Now choose what they can do.')
-  }, [toast])
+    toast(`Friend added · ${member.name}`)
+  }, [friendAdded, member.name, toast])
 
-  const requestConsent = useCallback(
+  const profileAction = useCallback(
     (kind: ConsentKind) => {
+      const labels = { spank: 'Flirt', message: 'Message', photo: 'Photo' } as const
+      const label = labels[kind]
+
       setConsentState((prev) => {
-        const current = prev[kind]
-        if (current === 'none') {
-          toast(`Request sent · ${member.name} decides`)
+        const status = prev[kind]
+
+        if (status === 'none') {
+          toast(`${label} request sent · ${member.name} decides`)
           setTimeout(() => {
             setConsentState((s) => (s[kind] === 'pending' ? { ...s, [kind]: 'active' } : s))
           }, 1600)
           return { ...prev, [kind]: 'pending' }
         }
-        if (current === 'active') {
-          toast('Revoked. That access is off.')
-          return { ...prev, [kind]: 'none' }
+
+        if (status === 'pending') {
+          toast(`${label} request pending · waiting on ${member.name}`)
+          return prev
         }
+
+        if (kind === 'message') {
+          toast(`Opening messages with ${member.name}…`)
+        } else if (kind === 'photo') {
+          toast(`Opening photo share with ${member.name}…`)
+        }
+
         return prev
       })
     },
@@ -389,7 +400,7 @@ export function useAppState() {
     friendAdded,
     addFriend,
     consentState,
-    requestConsent,
+    profileAction,
     mpMenuOpen,
     setMpMenuOpen,
     openPanel,
@@ -416,8 +427,6 @@ export function useAppState() {
     acceptFlirtRequest,
     denyFlirtRequest,
     feedSpanks,
-    feedExpanded,
-    setFeedExpanded,
     reactorOpen,
     reactorMode,
     reactorCtx,

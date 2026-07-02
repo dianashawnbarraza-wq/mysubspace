@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import type { AppState } from '../hooks/useAppState'
 import { ME } from '../constants/user'
 import { FEED_LABEL, PRIMARY_GROUP } from '../constants/group'
@@ -19,6 +20,24 @@ function Av({ initial, grad }: { initial: string; grad: string }) {
 }
 
 export function FeedScreen({ app }: { app: AppState }) {
+  const [feedExpanded, setFeedExpanded] = useState(false)
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (feedExpanded) return
+    const node = loadMoreRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) setFeedExpanded(true)
+      },
+      { rootMargin: '160px' },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [feedExpanded])
+
   return (
     <section className={`screen${app.screen === 'feed' ? ' active' : ''}`} id="feed">
       <div className="hero">
@@ -127,11 +146,9 @@ export function FeedScreen({ app }: { app: AppState }) {
             <b>velvetbound</b> <span className="grn">spanked</span> <b>brattybean</b> 👋
           </FeedItem>
 
-          {!app.feedExpanded ? (
-            <button type="button" className="feed-show-more" onClick={() => app.setFeedExpanded(true)}>
-              Show more
-            </button>
-          ) : (
+          <div ref={loadMoreRef} className="feed-load-sentinel" aria-hidden="true" />
+
+          {feedExpanded && (
             <>
               <FeedItem
                 avatar={<Av initial="R" grad="135deg,#9EFF00,#7CE33A" />}

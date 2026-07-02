@@ -94,7 +94,7 @@ export function FeedItem({
 
 export function FeedExploreCta({ onGroups, onNearby }: { onGroups: () => void; onNearby: () => void }) {
   return (
-    <div className="feed-explore card">
+    <div className="feed-explore">
       <p className="eyebrow" style={{ marginBottom: 8 }}>Keep exploring</p>
       <h3 className="feed-explore-title">There&apos;s more beyond Cruise LA</h3>
       <p className="feed-explore-sub">

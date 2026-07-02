@@ -6,7 +6,7 @@ export function OnboardingOverlay({ app }: { app: AppState }) {
     <div className={`overlay${app.showOnboarding ? ' show' : ''}`} id="onboarding">
       <div className="modal">
         <div className="step-dots">
-          {[0, 1, 2].map((d) => (
+          {[0, 1, 2, 3].map((d) => (
             <i key={d} className={app.onboardingStep >= d ? 'on' : ''} />
           ))}
         </div>
@@ -51,6 +51,21 @@ export function OnboardingOverlay({ app }: { app: AppState }) {
         </div>
 
         <div className={`modal-step${app.onboardingStep === 2 ? ' on' : ''}`}>
+          <h2>Consent comes first</h2>
+          <p className="sub">
+            mysubspace is a consent-driven experience. You choose who can flirt with you, message you,
+            and send photos — and you can revoke that access anytime. Nothing happens without your yes.
+          </p>
+          <div className="ob-consent-list">
+            <div className="ob-consent-row"><span>👋</span> Flirt on your terms</div>
+            <div className="ob-consent-row"><span>💬</span> Message who you allow</div>
+            <div className="ob-consent-row"><span>📷</span> Photos only when you say so</div>
+          </div>
+          <p className="ob-tagline">Keep it hot. Stay in control.</p>
+          <button className="btn btn-primary center-flex" onClick={() => app.obStep(3)}>Got it</button>
+        </div>
+
+        <div className={`modal-step${app.onboardingStep === 3 ? ' on' : ''}`}>
           <h2 style={{ fontSize: 26 }}>You&apos;re in ✨</h2>
           <p className="sub">Welcome to Cruise LA. Explore other groups, add who you vibe with, and set your own boundaries as you go.</p>
           <div className="invite-card" style={{ justifyContent: 'center', textAlign: 'center', flexDirection: 'column', gap: 6 }}>

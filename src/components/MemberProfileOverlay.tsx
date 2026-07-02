@@ -1,33 +1,30 @@
 import type { AppState } from '../hooks/useAppState'
-import type { ConsentKind } from '../types'
+import { memberSnippet, PROFILE_ACTION_LABELS } from '../constants/members'
+import type { ConsentKind, ConsentStatus } from '../types'
 import { SpankActions } from './FeedItem'
 
-const CONSENT: { kind: ConsentKind; icon: string; label: string; defaultSub: string }[] = [
-  { kind: 'spank', icon: '👋', label: 'Spank', defaultSub: 'Playful nudge, needs approval' },
-  { kind: 'message', icon: '💬', label: 'Message', defaultSub: 'Direct messages, needs approval' },
-  { kind: 'photo', icon: '📷', label: 'Send photos', defaultSub: 'Share pictures, needs approval' },
+const PROFILE_ACTIONS: { kind: ConsentKind; icon: string }[] = [
+  { kind: 'spank', icon: '👋' },
+  { kind: 'message', icon: '💬' },
+  { kind: 'photo', icon: '📷' },
 ]
 
-function consentLabel(status: string, defaultSub: string) {
-  if (status === 'pending') return 'Waiting for approval'
-  if (status === 'active') return 'Approved. Tap to revoke anytime.'
-  if (status === 'none') return defaultSub
-  return 'Revoked. Needs approval again.'
+function actionClass(status: ConsentStatus) {
+  if (status === 'pending') return 'mp-action pending'
+  if (status === 'active') return 'mp-action active'
+  return 'mp-action'
 }
 
-function consentBtnClass(status: string) {
-  if (status === 'pending') return 'consent-btn pending'
-  if (status === 'active') return 'consent-btn active'
-  return 'consent-btn request'
-}
-
-function consentBtnText(status: string) {
-  if (status === 'pending') return 'Requested'
-  if (status === 'active') return 'Allowed · revoke'
-  return 'Request'
+function actionLabel(kind: ConsentKind, status: ConsentStatus) {
+  const label = PROFILE_ACTION_LABELS[kind]
+  if (status === 'pending') return `${label} · requested`
+  if (status === 'active' && kind !== 'spank') return `${label} · open`
+  return label
 }
 
 export function MemberProfileOverlay({ app }: { app: AppState }) {
+  const snippet = memberSnippet(app.member.name, app.member.dyn)
+
   return (
     <div
       className={`overlay${app.showMemberProfile ? ' show' : ''}`}
@@ -58,47 +55,63 @@ export function MemberProfileOverlay({ app }: { app: AppState }) {
           </div>
         </div>
 
-        {!app.friendAdded ? (
-          <div>
-            <button className="btn btn-primary center-flex" style={{ marginTop: 20 }} onClick={app.addFriend}>+ Add friend</button>
-            <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', marginTop: 12 }}>
-              Adding a friend doesn&apos;t grant any access. You approve each thing separately.
-            </p>
+        <div className="mp-preview">
+          <div className="mp-mood">
+            <span className="lbl">Mood</span>
+            <em>{snippet.mood}</em>
           </div>
-        ) : (
-          <div>
-            <div className="consent-title">What {app.member.name} can do</div>
-            <p className="consent-note">
-              Every interaction is opt-in. Send a request, they approve, and you can revoke it anytime. Nothing happens without a yes.
-            </p>
-            {CONSENT.map(({ kind, icon, label, defaultSub }) => {
-              const status = app.consentState[kind]
-              return (
-                <div key={kind} className="consent-row">
-                  <div className="consent-ic">{icon}</div>
-                  <div className="consent-info">
-                    <div className="cn">{label}</div>
-                    <div className="cs">{consentLabel(status, defaultSub)}</div>
-                  </div>
-                  <button className={consentBtnClass(status)} onClick={() => app.requestConsent(kind)}>
-                    {consentBtnText(status)}
-                  </button>
-                </div>
-              )
-            })}
-            {app.consentState.spank === 'active' && (
-              <div className="spank-actions">
-                <div className="consent-title">Ready to spank</div>
-                <SpankActions
-                  onSpank={(visibility) => {
-                    app.spank(app.member.name, visibility)
-                    app.setShowMemberProfile(false)
-                  }}
-                />
-              </div>
-            )}
+          <div className="mp-detail">
+            <span className="k">Into</span>
+            <span className="v">{snippet.into}</span>
+          </div>
+          <div className="mp-detail">
+            <span className="k">Location</span>
+            <span className="v">{app.member.loc}</span>
+          </div>
+        </div>
+
+        <p className="mp-note">
+          Browse freely. A request is sent only when you try to flirt, message, or share photos.
+        </p>
+
+        <div className="mp-actions">
+          {PROFILE_ACTIONS.map(({ kind, icon }) => {
+            const status = app.consentState[kind]
+            return (
+              <button
+                key={kind}
+                type="button"
+                className={actionClass(status)}
+                onClick={() => app.profileAction(kind)}
+              >
+                <span className="mp-action-ic">{icon}</span>
+                {actionLabel(kind, status)}
+              </button>
+            )
+          })}
+        </div>
+
+        {app.consentState.spank === 'active' && (
+          <div className="spank-actions">
+            <div className="consent-title">Flirt with {app.member.name}</div>
+            <SpankActions
+              label="Flirt"
+              onSpank={(visibility) => {
+                app.spank(app.member.name, visibility)
+                app.setShowMemberProfile(false)
+              }}
+            />
           </div>
         )}
+
+        <button
+          type="button"
+          className={`btn btn-ghost center-flex mp-friend${app.friendAdded ? ' added' : ''}`}
+          onClick={app.addFriend}
+          disabled={app.friendAdded}
+        >
+          {app.friendAdded ? '✓ Friends' : '+ Add friend'}
+        </button>
       </div>
     </div>
   )
