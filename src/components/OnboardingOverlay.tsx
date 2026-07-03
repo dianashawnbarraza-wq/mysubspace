@@ -44,6 +44,9 @@ export function OnboardingOverlay({ app }: { app: AppState }) {
 
   return (
     <div className={`overlay${app.showOnboarding ? ' show' : ''}`} id="onboarding">
+      <button type="button" className="ob-skip-demo" onClick={app.skipOnboardingDemo}>
+        Skip this demo login →
+      </button>
       <div className="modal">
         <div className="step-dots">
           {STEPS.map((d) => (

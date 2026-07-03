@@ -2,12 +2,16 @@ import type { AppState } from '../hooks/useAppState'
 import { ME } from '../constants/user'
 import type { Screen } from '../types'
 
-const TABS: { id: Screen; label: string; icon: string; dot?: boolean }[] = [
-  { id: 'feed', label: 'Feed', icon: '⎔' },
-  { id: 'groups', label: 'Groups', icon: '◉' },
-  { id: 'people', label: 'People', icon: '◎' },
-  { id: 'market', label: 'Market', icon: '◆' },
-  { id: 'profile', label: 'You', icon: '◐', dot: true },
+const MAIN_TABS: { id: Screen; label: string; mobileIcon: string }[] = [
+  { id: 'feed', label: 'Feed', mobileIcon: '⌂' },
+  { id: 'groups', label: 'Groups', mobileIcon: '◉' },
+  { id: 'people', label: 'People', mobileIcon: '◎' },
+  { id: 'market', label: 'Market', mobileIcon: '◆' },
+]
+
+const DESKTOP_TABS: { id: Screen; label: string; dot?: boolean }[] = [
+  ...MAIN_TABS.map(({ id, label }) => ({ id, label })),
+  { id: 'profile', label: 'You', dot: true },
 ]
 
 export function Nav({ app }: { app: AppState }) {
@@ -15,18 +19,17 @@ export function Nav({ app }: { app: AppState }) {
     <>
       <nav>
         <div className="nav-in">
-          <div className="logo">
+          <button type="button" className="logo" onClick={() => app.go('feed')} aria-label="Go to feed">
             my<span>subspace</span>
-          </div>
+          </button>
           <div className="tabs">
-            {TABS.map((tab) => (
+            {DESKTOP_TABS.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 className={`tab${app.screen === tab.id ? ' on' : ''}`}
                 onClick={() => app.go(tab.id)}
               >
-                <span className="tab-ic" aria-hidden="true">{tab.icon}</span>
                 {tab.dot && <span className="dot" />}
                 <span className="tlabel">{tab.label}</span>
               </button>
@@ -50,15 +53,15 @@ export function Nav({ app }: { app: AppState }) {
             >
               ⚙️
             </button>
-            <div className="nav-av" onClick={() => app.go('profile')}>
+            <button type="button" className="nav-av" aria-label="Your profile" onClick={() => app.go('profile')}>
               {ME.initial}
-            </div>
+            </button>
           </div>
         </div>
       </nav>
 
       <div className="mobile-tabs" role="navigation" aria-label="Main">
-        {TABS.map((tab) => (
+        {MAIN_TABS.map((tab) => (
           <button
             key={tab.id}
             type="button"
@@ -66,14 +69,20 @@ export function Nav({ app }: { app: AppState }) {
             onClick={() => app.go(tab.id)}
             aria-current={app.screen === tab.id ? 'page' : undefined}
           >
-            {tab.id === 'profile' ? (
-              <span className="mobile-tab-av">{ME.initial}</span>
-            ) : (
-              <span className="mobile-tab-ic" aria-hidden="true">{tab.icon}</span>
-            )}
+            <span className="mobile-tab-ic" aria-hidden="true">{tab.mobileIcon}</span>
             <span className="mobile-tab-label">{tab.label}</span>
           </button>
         ))}
+        <button
+          type="button"
+          className={`mobile-tab${app.screen === 'profile' ? ' on' : ''}`}
+          onClick={() => app.go('profile')}
+          aria-current={app.screen === 'profile' ? 'page' : undefined}
+          aria-label="Your profile"
+        >
+          <span className="mobile-tab-av">{ME.initial}</span>
+          <span className="mobile-tab-label">You</span>
+        </button>
       </div>
     </>
   )

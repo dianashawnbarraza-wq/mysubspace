@@ -213,6 +213,17 @@ export function useAppState() {
     toast('Welcome to mysubspace 💚')
   }, [toast])
 
+  const skipOnboardingDemo = useCallback(() => {
+    const loc = locationFromZip('90031')
+    setZipCode('90031')
+    setLocationCity(loc.city)
+    setIdVerificationRequired(loc.idVerificationRequired)
+    setHandle(ME.handle)
+    setAgeOk(true)
+    setShowOnboarding(false)
+    toast('Skipped demo login · welcome in')
+  }, [toast])
+
   const replayInvite = useCallback(() => {
     setAgeOk(false)
     setOnboardingStep(0)
@@ -582,6 +593,7 @@ export function useAppState() {
     submitZip,
     obStep,
     finishOnboarding,
+    skipOnboardingDemo,
     replayInvite,
     showMemberProfile,
     setShowMemberProfile,

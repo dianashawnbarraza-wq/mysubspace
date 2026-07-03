@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { AppState } from '../hooks/useAppState'
 import {
   INTEREST_FILTERS,
@@ -8,37 +9,50 @@ import {
   filterLocalPeople,
 } from '../constants/people'
 
-function MultiFilterRow({
-  label,
+function FilterSection({
+  title,
   options,
   selected,
   onToggle,
+  open,
+  onOpen,
 }: {
-  label: string
+  title: string
   options: readonly string[]
   selected: string[]
   onToggle: (value: string) => void
+  open: boolean
+  onOpen: () => void
 }) {
   return (
-    <div className="people-filter-row">
-      <span className="people-filter-label">{label}</span>
-      <div className="people-chips">
-        {options.map((opt) => (
-          <button
-            key={opt}
-            type="button"
-            className={`people-chip${selected.includes(opt) ? ' on' : ''}`}
-            onClick={() => onToggle(opt)}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
+    <div className={`pf-section${open ? ' open' : ''}`}>
+      <button type="button" className="pf-section-head" onClick={onOpen}>
+        <span>{title}</span>
+        {selected.length > 0 && <span className="pf-count">{selected.length}</span>}
+        <span className="pf-chevron">{open ? '−' : '+'}</span>
+      </button>
+      {open && (
+        <div className="pf-options">
+          {options.map((opt) => (
+            <label key={opt} className={`pf-option${selected.includes(opt) ? ' on' : ''}`}>
+              <input
+                type="checkbox"
+                checked={selected.includes(opt)}
+                onChange={() => onToggle(opt)}
+              />
+              <span>{opt}</span>
+            </label>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
 export function PeopleScreen({ app }: { app: AppState }) {
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [openSection, setOpenSection] = useState<string | null>(null)
+
   const results = filterLocalPeople(LOCAL_PEOPLE, {
     query: app.peopleSearch,
     locations: app.peopleLocations,
@@ -47,14 +61,30 @@ export function PeopleScreen({ app }: { app: AppState }) {
     preferences: app.peoplePreferences,
   })
 
-  const hasFilters =
-    app.peopleLocations.length > 0 ||
-    app.peopleInterests.length > 0 ||
-    app.peopleLooking.length > 0 ||
-    app.peoplePreferences.length > 0
+  const filterCount =
+    app.peopleLocations.length +
+    app.peopleInterests.length +
+    app.peopleLooking.length +
+    app.peoplePreferences.length
 
-  const presetInterests = new Set<string>(INTEREST_FILTERS)
-  const customInterestTags = app.peopleInterests.filter((i) => !presetInterests.has(i))
+  const hasFilters = filterCount > 0
+
+  const presetInterestSet = new Set<string>(INTEREST_FILTERS)
+  const presetInterestsSelected = app.peopleInterests.filter((i) => presetInterestSet.has(i))
+
+  const activeTags = [
+    ...app.peopleLocations.map((v) => ({ kind: 'loc' as const, value: v })),
+    ...app.peopleLooking.map((v) => ({ kind: 'looking' as const, value: v })),
+    ...app.peopleInterests.map((v) => ({ kind: 'interest' as const, value: v })),
+    ...app.peoplePreferences.map((v) => ({ kind: 'pref' as const, value: v })),
+  ]
+
+  const removeTag = (kind: string, value: string) => {
+    if (kind === 'loc') app.togglePeopleLocation(value)
+    else if (kind === 'looking') app.togglePeopleLooking(value)
+    else if (kind === 'interest') app.togglePeopleInterest(value)
+    else app.togglePeoplePreference(value)
+  }
 
   return (
     <section className={`screen${app.screen === 'people' ? ' active' : ''}`} id="people">
@@ -63,7 +93,7 @@ export function PeopleScreen({ app }: { app: AppState }) {
         <h1>
           People in <em>{app.locationCity}</em>
         </h1>
-        <p className="hero-sub">Search usernames and stack filters to find your people.</p>
+        <p className="hero-sub">Search usernames and refine with filters when you need to.</p>
       </div>
 
       <div className="card people-panel">
@@ -108,58 +138,87 @@ export function PeopleScreen({ app }: { app: AppState }) {
           </div>
         )}
 
-        <div className="people-filter-strip">
-          <MultiFilterRow
-            label="Location"
-            options={LOCATION_FILTERS}
-            selected={app.peopleLocations}
-            onToggle={app.togglePeopleLocation}
-          />
-          <MultiFilterRow
-            label="Looking for"
-            options={LOOKING_FILTERS}
-            selected={app.peopleLooking}
-            onToggle={app.togglePeopleLooking}
-          />
-          <MultiFilterRow
-            label="Interests"
-            options={INTEREST_FILTERS}
-            selected={app.peopleInterests}
-            onToggle={app.togglePeopleInterest}
-          />
-          <MultiFilterRow
-            label="Preference"
-            options={PREFERENCE_FILTERS}
-            selected={app.peoplePreferences}
-            onToggle={app.togglePeoplePreference}
-          />
-        </div>
-
-        <div className="people-custom-interest">
-          <input
-            type="text"
-            placeholder="Add your own interest filter"
-            value={app.customPeopleInterest}
-            onChange={(e) => app.setCustomPeopleInterest(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && app.addCustomPeopleInterest()}
-          />
-          <button type="button" className="btn btn-ghost" onClick={app.addCustomPeopleInterest}>
-            Add
+        <div className="pf-toolbar">
+          <button
+            type="button"
+            className={`btn btn-ghost pf-toggle${filtersOpen ? ' on' : ''}`}
+            onClick={() => setFiltersOpen((v) => !v)}
+          >
+            Filters{filterCount > 0 ? ` (${filterCount})` : ''}
+            <span className="pf-toggle-chevron">{filtersOpen ? '▴' : '▾'}</span>
           </button>
+          {hasFilters && (
+            <button type="button" className="people-clear-filters" onClick={app.clearPeopleFilters}>
+              Clear all
+            </button>
+          )}
         </div>
 
-        {customInterestTags.length > 0 && (
-          <div className="people-custom-chips">
-            {customInterestTags.map((tag) => (
+        {hasFilters && !filtersOpen && (
+          <div className="pf-active">
+            {activeTags.map(({ kind, value }) => (
               <button
-                key={tag}
+                key={`${kind}-${value}`}
                 type="button"
-                className="people-chip on"
-                onClick={() => app.togglePeopleInterest(tag)}
+                className="pf-active-chip"
+                onClick={() => removeTag(kind, value)}
               >
-                {tag} ✕
+                {value} ✕
               </button>
             ))}
+          </div>
+        )}
+
+        {filtersOpen && (
+          <div className="pf-panel">
+            <FilterSection
+              title="Location"
+              options={LOCATION_FILTERS}
+              selected={app.peopleLocations}
+              onToggle={app.togglePeopleLocation}
+              open={openSection === 'location'}
+              onOpen={() => setOpenSection((s) => (s === 'location' ? null : 'location'))}
+            />
+            <FilterSection
+              title="Looking for"
+              options={LOOKING_FILTERS}
+              selected={app.peopleLooking}
+              onToggle={app.togglePeopleLooking}
+              open={openSection === 'looking'}
+              onOpen={() => setOpenSection((s) => (s === 'looking' ? null : 'looking'))}
+            />
+            <FilterSection
+              title="Interests"
+              options={INTEREST_FILTERS}
+              selected={presetInterestsSelected}
+              onToggle={app.togglePeopleInterest}
+              open={openSection === 'interests'}
+              onOpen={() => setOpenSection((s) => (s === 'interests' ? null : 'interests'))}
+            />
+            <FilterSection
+              title="Sexual preference"
+              options={PREFERENCE_FILTERS}
+              selected={app.peoplePreferences}
+              onToggle={app.togglePeoplePreference}
+              open={openSection === 'preference'}
+              onOpen={() => setOpenSection((s) => (s === 'preference' ? null : 'preference'))}
+            />
+            <div className="pf-custom">
+              <label className="pf-custom-label" htmlFor="custom-interest">Custom interest</label>
+              <div className="pf-custom-row">
+                <input
+                  id="custom-interest"
+                  type="text"
+                  placeholder="e.g. bratting, protocol…"
+                  value={app.customPeopleInterest}
+                  onChange={(e) => app.setCustomPeopleInterest(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && app.addCustomPeopleInterest()}
+                />
+                <button type="button" className="btn btn-aqua" onClick={app.addCustomPeopleInterest}>
+                  Add
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -168,11 +227,6 @@ export function PeopleScreen({ app }: { app: AppState }) {
             {results.length} profile{results.length === 1 ? '' : 's'}
             {hasFilters || app.peopleSearch ? ' matching' : ' nearby'}
           </span>
-          {hasFilters && (
-            <button type="button" className="people-clear-filters" onClick={app.clearPeopleFilters}>
-              Clear filters
-            </button>
-          )}
         </div>
 
         {results.length === 0 ? (
@@ -195,7 +249,7 @@ export function PeopleScreen({ app }: { app: AppState }) {
                     {person.sexuality && ` · ${person.sexuality}`}
                   </div>
                   <div className="people-tags">
-                    {person.interests?.slice(0, 4).map((tag) => (
+                    {person.interests?.slice(0, 3).map((tag) => (
                       <span key={tag} className="pill">{tag}</span>
                     ))}
                   </div>
