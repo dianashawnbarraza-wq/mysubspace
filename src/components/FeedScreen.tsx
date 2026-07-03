@@ -48,7 +48,7 @@ export function FeedScreen({ app }: { app: AppState }) {
     <section className={`screen${app.screen === 'feed' ? ' active' : ''}`} id="feed">
       <div className="hero">
         <p className="eyebrow hero-welcome">
-          Welcome, <em>{app.handle}</em>
+          Welcome, {app.handle}
         </p>
         <h1>
           What&apos;s happening in <em>{cityLabel}</em>
