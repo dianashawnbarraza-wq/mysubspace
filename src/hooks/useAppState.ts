@@ -67,7 +67,7 @@ export function useAppState() {
 
   const [peopleSearch, setPeopleSearch] = useState('')
   const [peopleRecentSearches, setPeopleRecentSearches] = useState<MemberInfo[]>([])
-  const [peopleLocations, setPeopleLocations] = useState<string[]>([])
+  const [peopleMaxDistance, setPeopleMaxDistance] = useState<number | null>(null)
   const [peopleInterests, setPeopleInterests] = useState<string[]>([])
   const [peopleLooking, setPeopleLooking] = useState<string[]>([])
   const [peoplePreferences, setPeoplePreferences] = useState<string[]>([])
@@ -262,8 +262,8 @@ export function useAppState() {
     [addRecentPeopleSearch, openMember],
   )
 
-  const togglePeopleLocation = useCallback((loc: string) => {
-    setPeopleLocations((prev) => (prev.includes(loc) ? prev.filter((x) => x !== loc) : [...prev, loc]))
+  const setPeopleDistance = useCallback((miles: number | null) => {
+    setPeopleMaxDistance(miles)
   }, [])
 
   const togglePeopleInterest = useCallback((interest: string) => {
@@ -289,7 +289,7 @@ export function useAppState() {
   }, [customPeopleInterest, toast])
 
   const clearPeopleFilters = useCallback(() => {
-    setPeopleLocations([])
+    setPeopleMaxDistance(null)
     setPeopleInterests([])
     setPeopleLooking([])
     setPeoplePreferences([])
@@ -639,8 +639,8 @@ export function useAppState() {
     peopleSearch,
     setPeopleSearch,
     peopleRecentSearches,
-    peopleLocations,
-    togglePeopleLocation,
+    peopleMaxDistance,
+    setPeopleDistance,
     peopleInterests,
     togglePeopleInterest,
     peopleLooking,

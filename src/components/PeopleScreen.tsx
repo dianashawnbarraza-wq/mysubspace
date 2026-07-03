@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import type { AppState } from '../hooks/useAppState'
 import {
+  DISTANCE_FILTERS,
   INTEREST_FILTERS,
   LOCAL_PEOPLE,
-  LOCATION_FILTERS,
   LOOKING_FILTERS,
   PREFERENCE_FILTERS,
   filterLocalPeople,
@@ -49,20 +49,57 @@ function FilterSection({
   )
 }
 
+function DistanceFilterSection({
+  value,
+  onChange,
+  open,
+  onOpen,
+}: {
+  value: number | null
+  onChange: (miles: number | null) => void
+  open: boolean
+  onOpen: () => void
+}) {
+  return (
+    <div className={`pf-section${open ? ' open' : ''}`}>
+      <button type="button" className="pf-section-head" onClick={onOpen}>
+        <span>Distance</span>
+        {value != null && <span className="pf-count">1</span>}
+        <span className="pf-chevron">{open ? '−' : '+'}</span>
+      </button>
+      {open && (
+        <div className="pf-options">
+          {DISTANCE_FILTERS.map(({ label, miles }) => (
+            <label key={miles} className={`pf-option${value === miles ? ' on' : ''}`}>
+              <input
+                type="radio"
+                name="people-distance"
+                checked={value === miles}
+                onChange={() => onChange(value === miles ? null : miles)}
+              />
+              <span>Within {label}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function PeopleScreen({ app }: { app: AppState }) {
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [openSection, setOpenSection] = useState<string | null>(null)
 
   const results = filterLocalPeople(LOCAL_PEOPLE, {
     query: app.peopleSearch,
-    locations: app.peopleLocations,
+    maxDistanceMiles: app.peopleMaxDistance,
     interests: app.peopleInterests,
     lookingFor: app.peopleLooking,
     preferences: app.peoplePreferences,
   })
 
   const filterCount =
-    app.peopleLocations.length +
+    (app.peopleMaxDistance != null ? 1 : 0) +
     app.peopleInterests.length +
     app.peopleLooking.length +
     app.peoplePreferences.length
@@ -72,15 +109,20 @@ export function PeopleScreen({ app }: { app: AppState }) {
   const presetInterestSet = new Set<string>(INTEREST_FILTERS)
   const presetInterestsSelected = app.peopleInterests.filter((i) => presetInterestSet.has(i))
 
+  const distanceLabel =
+    app.peopleMaxDistance != null
+      ? `Within ${DISTANCE_FILTERS.find((d) => d.miles === app.peopleMaxDistance)?.label ?? `${app.peopleMaxDistance} mi`}`
+      : null
+
   const activeTags = [
-    ...app.peopleLocations.map((v) => ({ kind: 'loc' as const, value: v })),
+    ...(distanceLabel ? [{ kind: 'distance' as const, value: distanceLabel }] : []),
     ...app.peopleLooking.map((v) => ({ kind: 'looking' as const, value: v })),
     ...app.peopleInterests.map((v) => ({ kind: 'interest' as const, value: v })),
     ...app.peoplePreferences.map((v) => ({ kind: 'pref' as const, value: v })),
   ]
 
   const removeTag = (kind: string, value: string) => {
-    if (kind === 'loc') app.togglePeopleLocation(value)
+    if (kind === 'distance') app.setPeopleDistance(null)
     else if (kind === 'looking') app.togglePeopleLooking(value)
     else if (kind === 'interest') app.togglePeopleInterest(value)
     else app.togglePeoplePreference(value)
@@ -171,13 +213,11 @@ export function PeopleScreen({ app }: { app: AppState }) {
 
         {filtersOpen && (
           <div className="pf-panel">
-            <FilterSection
-              title="Location"
-              options={LOCATION_FILTERS}
-              selected={app.peopleLocations}
-              onToggle={app.togglePeopleLocation}
-              open={openSection === 'location'}
-              onOpen={() => setOpenSection((s) => (s === 'location' ? null : 'location'))}
+            <DistanceFilterSection
+              value={app.peopleMaxDistance}
+              onChange={app.setPeopleDistance}
+              open={openSection === 'distance'}
+              onOpen={() => setOpenSection((s) => (s === 'distance' ? null : 'distance'))}
             />
             <FilterSection
               title="Looking for"
@@ -245,6 +285,7 @@ export function PeopleScreen({ app }: { app: AppState }) {
                 <div className="people-info" onClick={() => app.openMemberFromPeople(person)}>
                   <div className="people-name">@{person.name}</div>
                   <div className="people-sub">
+                    {person.distanceMiles != null ? `${person.distanceMiles} mi · ` : ''}
                     {person.dyn} · {person.loc}
                     {person.sexuality && ` · ${person.sexuality}`}
                   </div>

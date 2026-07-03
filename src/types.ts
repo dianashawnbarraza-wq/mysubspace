@@ -18,6 +18,7 @@ export type MemberInfo = {
   initial: string
   dyn: string
   loc: string
+  distanceMiles?: number
   grad: string
   sexuality?: string
   genderIdentity?: string

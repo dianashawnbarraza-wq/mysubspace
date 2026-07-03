@@ -1,6 +1,6 @@
 import type { MemberInfo } from '../types'
 
-export const LOCATION_FILTERS = [
+export const NEIGHBORHOODS = [
   'DTLA',
   'Silver Lake',
   'Echo Park',
@@ -13,6 +13,13 @@ export const LOCATION_FILTERS = [
   'Koreatown',
   'Long Beach',
   'Pasadena',
+] as const
+
+export const DISTANCE_FILTERS = [
+  { label: '5 mi', miles: 5 },
+  { label: '10 mi', miles: 10 },
+  { label: '25 mi', miles: 25 },
+  { label: '50 mi', miles: 50 },
 ] as const
 
 export const INTEREST_FILTERS = [
@@ -94,6 +101,7 @@ const CORE_PROFILES: MemberInfo[] = [
     initial: 'N',
     dyn: 'Switch',
     loc: 'DTLA',
+    distanceMiles: 2,
     grad: '135deg,#9EFF00,#00FFC2',
     sexuality: 'queer',
     genderIdentity: 'non-binary',
@@ -106,6 +114,7 @@ const CORE_PROFILES: MemberInfo[] = [
     initial: 'P',
     dyn: 'Pup',
     loc: 'Highland Park',
+    distanceMiles: 6,
     grad: '135deg,#7CE33A,#00FFC2',
     sexuality: 'gay',
     genderIdentity: 'man',
@@ -118,6 +127,7 @@ const CORE_PROFILES: MemberInfo[] = [
     initial: 'M',
     dyn: 'Rigger',
     loc: 'Silver Lake',
+    distanceMiles: 4,
     grad: '135deg,#00FFC2,#7CE33A',
     sexuality: 'bi',
     genderIdentity: 'woman',
@@ -130,6 +140,7 @@ const CORE_PROFILES: MemberInfo[] = [
     initial: 'B',
     dyn: 'Brat',
     loc: 'Echo Park',
+    distanceMiles: 3,
     grad: '135deg,#00FFC2,#7CE33A',
     sexuality: 'pan',
     genderIdentity: 'genderfluid',
@@ -142,6 +153,7 @@ const CORE_PROFILES: MemberInfo[] = [
     initial: 'I',
     dyn: 'Dom',
     loc: 'Silver Lake',
+    distanceMiles: 4,
     grad: '135deg,#00FFC2,#5FD000',
     sexuality: 'gay',
     genderIdentity: 'man',
@@ -154,6 +166,7 @@ const CORE_PROFILES: MemberInfo[] = [
     initial: 'V',
     dyn: 'Switch',
     loc: 'Los Feliz',
+    distanceMiles: 5,
     grad: '135deg,#7CE33A,#00FFC2',
     sexuality: 'queer',
     genderIdentity: 'transfem',
@@ -189,13 +202,14 @@ function generateProfiles(count: number): MemberInfo[] {
 
   for (let i = 0; profiles.length < count; i++) {
     const name = generateHandle(i + 20, used)
-    const loc = pick(LOCATION_FILTERS, i + 2)
+    const loc = pick(NEIGHBORHOODS, i + 2)
     const pref = pick(PREFERENCE_FILTERS, i + 4)
     profiles.push({
       name,
       initial: name.charAt(0).toUpperCase(),
       dyn: pick(DYNS, i),
       loc,
+      distanceMiles: 1 + ((i * 11 + 3) % 48),
       grad: pick(GRADS, i),
       sexuality: pref,
       genderIdentity: pick(['man', 'woman', 'non-binary', 'transmasc', 'transfem', 'genderfluid', 'agender'], i),
@@ -212,7 +226,7 @@ export const LOCAL_PEOPLE = generateProfiles(150)
 
 export type PeopleFilters = {
   query: string
-  locations: string[]
+  maxDistanceMiles: number | null
   interests: string[]
   lookingFor: string[]
   preferences: string[]
@@ -235,7 +249,12 @@ export function filterLocalPeople(people: MemberInfo[], filters: PeopleFilters) 
 
   return people.filter((person) => {
     if (q && !person.name.toLowerCase().includes(q)) return false
-    if (filters.locations.length > 0 && !filters.locations.includes(person.loc)) return false
+    if (
+      filters.maxDistanceMiles != null &&
+      (person.distanceMiles ?? Number.POSITIVE_INFINITY) > filters.maxDistanceMiles
+    ) {
+      return false
+    }
     if (!matchesAny(person.interests, filters.interests)) return false
     if (!matchesAny(person.lookingFor, filters.lookingFor)) return false
     if (!matchesPreference(person, filters.preferences)) return false
